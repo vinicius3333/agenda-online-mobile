@@ -1,0 +1,12 @@
+{
+  "name": "agenda-online-mobile",
+  "displayName": "agenda-online-mobile",
+  "expo": {
+    "name": "agenda-online-mobile",
+    "slug": "agenda-online-mobile",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
