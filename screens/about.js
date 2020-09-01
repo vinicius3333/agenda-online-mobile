@@ -1,33 +1,33 @@
-import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import React from "react";
+import { View, Text } from "react-native";
+import { Formik, Field } from "formik";
+import { TextInput, Button } from "react-native-paper";
+import * as Yup from "yup";
 
-export default function App({ route, navigation }) {
-  const { itemId } = route.params;
-  const { otherParam } = route.params;
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Details Screen</Text>
-      <Text>itemId: {JSON.stringify(itemId)}</Text>
-      <Text>otherParam: {JSON.stringify(otherParam)}</Text>
-      <Button
-        title="Go to Details... again"
-        onPress={() =>
-          navigation.push('Details', {
-            itemId: Math.floor(Math.random() * 100),
-          })
-        }
-      />
-      <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      <Button title="Go back" onPress={() => navigation.goBack()} />
-    </View>
-  )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'blue',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+const schema = Yup.object({
+  usuario: Yup.string().required().min(4),
 });
+
+export default function App() {
+  return (
+    <Formik
+      initialValues={{ usuario: "teste" }}
+      validationSchema={schema}
+      onSubmit={(data) => {
+        console.log("Submit: ", data);
+      }}
+    >
+      {({ values, handleChange, handleBlur, handleSubmit }) => (
+        <View>
+          <TextInput
+            value={values.usuario}
+            onChangeText={handleChange("usuario")}
+            onBlur={handleBlur("usuario")}
+          />
+          <Text>{JSON.stringify(values, null, 2)}</Text>
+          <Button onPress={handleSubmit}>Oi</Button>
+        </View>
+      )}
+    </Formik>
+  );
+}
