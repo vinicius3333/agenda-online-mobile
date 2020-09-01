@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Formik, Field } from "formik";
-import { TextInput, Button } from "react-native-paper";
+import { Formik } from "formik";
+import { Button } from "react-native-paper";
+import TextInput from "../shared/componentes/TextInput";
 import * as Yup from "yup";
 
 const schema = Yup.object({
@@ -17,14 +18,15 @@ export default function App() {
         console.log("Submit: ", data);
       }}
     >
-      {({ values, handleChange, handleBlur, handleSubmit }) => (
+      {({ errors, values, handleChange, handleBlur, handleSubmit }) => (
         <View>
           <TextInput
             value={values.usuario}
+            error={errors.usuario}
             onChangeText={handleChange("usuario")}
             onBlur={handleBlur("usuario")}
           />
-          <Text>{JSON.stringify(values, null, 2)}</Text>
+          <Text>{JSON.stringify(errors, null, 2)}</Text>
           <Button onPress={handleSubmit}>Oi</Button>
         </View>
       )}
