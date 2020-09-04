@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from "react-native";
 export default function App(props) {
   return (
     <View>
-      <TextInput {...props} mode="outlined" />
+      <TextInput {...props} style={{ marginVertical: 4 }} mode="outlined" />
       {props.error && <Text style={styles.errorText}>{props.error}</Text>}
     </View>
   );

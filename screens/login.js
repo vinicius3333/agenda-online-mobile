@@ -67,7 +67,7 @@ export default function App({ navigation }) {
           <Button mode="text" onPress={() => console.log("Lista de empresas")}>
             Lista de Empresas
           </Button>
-          <Button mode="text" onPress={() => console.log("quero me cadastrar")}>
+          <Button mode="text" onPress={() => navigation.navigate("Cadastro")}>
             Quero me cadastrar
           </Button>
         </View>
