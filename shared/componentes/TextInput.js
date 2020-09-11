@@ -7,7 +7,12 @@ export default function App(props) {
     <View>
       <TextInput
         right={
-          <TextInput.Icon name={props.nomeIcone} onPress={props.funcaoIcone} />
+          props.nomeIcone && (
+            <TextInput.Icon
+              name={props.nomeIcone}
+              onPress={props.funcaoIcone}
+            />
+          )
         }
         {...props}
         style={{ marginVertical: 4 }}

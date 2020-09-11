@@ -64,8 +64,17 @@ export default function App({ navigation }) {
           <Button mode="text" onPress={() => navigation.goBack()}>
             Lista de Empresas
           </Button>
-          <Button mode="text" onPress={() => navigation.navigate("Cadastro")}>
-            Quero me cadastrar
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate("Cadastro Prestador")}
+          >
+            Cadastro de prestador de serviço
+          </Button>
+          <Button
+            mode="text"
+            onPress={() => navigation.navigate("Cadastro Cliente")}
+          >
+            Cadastro de cliente
           </Button>
         </View>
       )}
