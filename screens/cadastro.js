@@ -9,7 +9,11 @@ import theme from "../shared/themes/baseTheme";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
-    [mostrarSenha, setMostrarSenha] = React.useState(true);
+    [mostrarSenha, setMostrarSenha] = React.useState(true),
+    [iconeConfirmarSenha, setIconeConfirmarSenha] = React.useState(
+      "eye-outline"
+    ),
+    [mostrarConfirmarSenha, setMostrarConfirmarSenha] = React.useState(true);
 
   const schema = Yup.object({
     nomeCompleto: Yup.string().required().min(3),
@@ -24,6 +28,7 @@ export default function App({ navigation }) {
     duracaoServico: Yup.string().required().min(5),
     usuario: Yup.string().required().min(5),
     senha: Yup.string().required().min(5),
+    confirmarSenha: Yup.string().required().min(5),
   });
 
   function trocarTipoSenha() {
@@ -131,6 +136,21 @@ export default function App({ navigation }) {
               secureTextEntry={mostrarSenha}
               onChangeText={handleChange("senha")}
               onBlur={handleBlur("senha")}
+            />
+            <TextInput
+              value={values.confirmarSenha}
+              error={errors.confirmarSenha}
+              nomeIcone={iconeSenha}
+              funcaoIcone={() => {
+                setMostrarConfirmarSenha(!mostrarConfirmarSenha);
+                setIconeConfirmarSenha(
+                  mostrarConfirmarSenha ? "eye-off-outline" : "eye-outline"
+                );
+              }}
+              label="Confirmar senha"
+              secureTextEntry={iconeConfirmarSenha}
+              onChangeText={handleChange("confirmarSenha")}
+              onBlur={handleBlur("confirmarSenha")}
             />
             <Button
               mode="contained"

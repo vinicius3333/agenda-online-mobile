@@ -19,8 +19,8 @@ function CadastroPrestadorScreen({ navigation }) {
   return <Cadastro navigation={navigation} />;
 }
 
-function CadastroClienteScreen() {
-  return <CadastroCliente />;
+function CadastroClienteScreen({ navigation }) {
+  return <CadastroCliente navigation={navigation} />;
 }
 
 const Stack = createStackNavigator();
