@@ -7,11 +7,7 @@ import Yup from "../shared/validators/validator";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
-    [mostrarSenha, setMostrarSenha] = React.useState(true),
-    elementoIconeUsuario = <TextInput.Icon name="alert-circle-outline" />,
-    elementoIconeSenha = (
-      <TextInput.Icon name={iconeSenha} onPress={trocarTipoSenha} />
-    );
+    [mostrarSenha, setMostrarSenha] = React.useState(true);
 
   const schema = Yup.object({
     Usuario: Yup.string().required().min(3),
@@ -39,14 +35,15 @@ export default function App({ navigation }) {
             error={errors.Usuario}
             onChangeText={handleChange("Usuario")}
             onBlur={handleBlur("Usuario")}
-            right={elementoIconeUsuario}
+            nomeIcone="alert-circle-outline"
             label="Usuário"
           />
           <TextInput
             value={values.Senha}
             error={errors.Senha}
             mode="outlined"
-            right={elementoIconeSenha}
+            nomeIcone={iconeSenha}
+            funcaoIcone={trocarTipoSenha}
             label="Senha"
             secureTextEntry={mostrarSenha}
             onChangeText={handleChange("Senha")}
@@ -64,7 +61,7 @@ export default function App({ navigation }) {
           <Subheading style={{ paddingVertical: 12, textAlign: "center" }}>
             Não tem login? Cadastre-se abaixo
           </Subheading>
-          <Button mode="text" onPress={() => console.log("Lista de empresas")}>
+          <Button mode="text" onPress={() => navigation.goBack()}>
             Lista de Empresas
           </Button>
           <Button mode="text" onPress={() => navigation.navigate("Cadastro")}>

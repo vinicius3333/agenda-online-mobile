@@ -4,20 +4,27 @@ import { DataTable, Button } from "react-native-paper";
 import theme from "../shared/themes/baseTheme";
 
 export default function App({ navigation }) {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          style={{
+            backgroundColor: theme.colors.success,
+            width: 100,
+            alignSelf: "center",
+            marginRight: 8,
+          }}
+          labelStyle={{ color: "#fff", fontWeight: "bold" }}
+          mode="contained"
+          onPress={() => navigation.navigate("Login")}
+        >
+          ENTRAR
+        </Button>
+      ),
+    });
+  });
   return (
     <View style={styles.container}>
-      <Button
-        style={{
-          backgroundColor: theme.colors.success,
-          width: 140,
-          alignSelf: "center",
-        }}
-        labelStyle={{ color: "#fff", fontWeight: "bold" }}
-        mode="contained"
-        onPress={() => console.log("Entrando")}
-      >
-        ENTRAR
-      </Button>
       <View style={styles.empresas}>
         <Text style={styles.tituloEmpresa}>Empresas</Text>
       </View>
@@ -93,13 +100,11 @@ export default function App({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 24,
     flex: 1,
     flexDirection: "column",
-    justifyContent: "flex-start",
+    justifyContent: "center",
   },
   empresas: {
-    marginTop: 24,
     height: 50,
     backgroundColor: theme.colors.primary,
     justifyContent: "center",

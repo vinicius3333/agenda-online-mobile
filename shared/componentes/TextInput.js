@@ -5,7 +5,14 @@ import { View, Text, StyleSheet } from "react-native";
 export default function App(props) {
   return (
     <View>
-      <TextInput {...props} style={{ marginVertical: 4 }} mode="outlined" />
+      <TextInput
+        right={
+          <TextInput.Icon name={props.nomeIcone} onPress={props.funcaoIcone} />
+        }
+        {...props}
+        style={{ marginVertical: 4 }}
+        mode="outlined"
+      />
       {props.error && <Text style={styles.errorText}>{props.error}</Text>}
     </View>
   );
