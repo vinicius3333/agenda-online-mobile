@@ -41,7 +41,7 @@ export default function App({ navigation }) {
         <ScrollView>
           <View style={styles.container}>
             <Title style={{ textAlign: "center" }}>
-              Cadastro d prestador de serviço
+              Cadastro de prestador de serviço
             </Title>
             <TextInput
               value={values.nomeCompleto}
