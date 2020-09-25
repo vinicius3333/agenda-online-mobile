@@ -1,12 +1,13 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Title, Button, Subheading } from "react-native-paper";
-import TextInput from "../shared/componentes/TextInput";
+import TextInput from "../../shared/componentes/TextInput";
 import { Formik } from "formik";
-import Yup from "../shared/validators/validator";
+import Yup from "../../shared/validators/validator";
 import { ScrollView } from "react-native-gesture-handler";
-import theme from "../shared/themes/baseTheme";
+import theme from "../../shared/themes/baseTheme";
 import TextInputMask from "react-native-text-input-mask";
+import cadastroClienteService from "./cadastroClienteService";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -21,7 +22,10 @@ export default function App({ navigation }) {
     celular: Yup.string().required().min(13),
     usuario: Yup.string().required().min(5),
     senha: Yup.string().required().min(5),
-    confirmarSenha: Yup.string().required().min(5),
+    confirmarSenha: Yup.string()
+      .required()
+      .min(5)
+      .oneOf([Yup.ref("senha"), null], "As senhas tem que ser iguais."),
   });
 
   function trocarTipoSenha() {
@@ -34,10 +38,26 @@ export default function App({ navigation }) {
       initialValues={{ Usuario: "", Senha: "" }}
       validationSchema={schema}
       onSubmit={(data) => {
-        console.log("Submit: ", data);
+        const { nomeCompleto, celular, usuario, senha } = data;
+        const dataCliente = {
+          UserName: usuario,
+          Celular: celular,
+          Password: senha,
+          FullName: nomeCompleto,
+          ImagemPerfil: "",
+        };
+        dataCliente.ImagemPerfil = "";
+        cadastroClienteService
+          .postRegistroUsuario(dataCliente)
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err.response.data);
+          });
       }}
     >
-      {({ values, errors, handleChange, handleBlur }) => (
+      {({ values, errors, handleSubmit, handleChange, handleBlur }) => (
         <ScrollView>
           <View style={styles.container}>
             <Title style={{ textAlign: "center" }}>
@@ -95,7 +115,7 @@ export default function App({ navigation }) {
             <Button
               mode="contained"
               theme={theme.colors.success}
-              onPress={() => navigation.navigate("Login")}
+              onPress={handleSubmit}
               contentStyle={styles.button}
               style={{ marginTop: 4 }}
               labelStyle={{ color: "white" }}

@@ -5,7 +5,7 @@ import theme from "../shared/themes/baseTheme";
 import Login from "../screens/login";
 import Cadastro from "../screens/cadastro";
 import Home from "../screens/home";
-import CadastroCliente from "../screens/cadastroCliente";
+import CadastroCliente from "../screens/CadastroCliente/cadastroCliente";
 
 function HomeScreen({ navigation }) {
   return <Home navigation={navigation} />;
