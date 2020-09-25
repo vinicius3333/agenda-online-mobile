@@ -43,18 +43,13 @@ export default function App({ navigation }) {
           UserName: usuario,
           Celular: celular,
           Password: senha,
-          FullName: nomeCompleto,
+          nomeCompleto,
           ImagemPerfil: "",
         };
         dataCliente.ImagemPerfil = "";
-        cadastroClienteService
-          .postRegistroUsuario(dataCliente)
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => {
-            console.log(err.response.data);
-          });
+        cadastroClienteService.postRegistroUsuario(dataCliente).then((res) => {
+          navigation.navigate("Login");
+        });
       }}
     >
       {({ values, errors, handleSubmit, handleChange, handleBlur }) => (
