@@ -2,7 +2,7 @@ import React from "react";
 import { TextInput } from "react-native-paper";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function App(props) {
+const TextInputComponent = (props) => {
   return (
     <View>
       <TextInput
@@ -21,7 +21,7 @@ export default function App(props) {
       {props.error && <Text style={styles.errorText}>{props.error}</Text>}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   errorText: {
@@ -32,3 +32,5 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
 });
+
+export default TextInputComponent;

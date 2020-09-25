@@ -8,7 +8,6 @@ import {
 } from "react-native-paper";
 import theme from "./shared/themes/baseTheme";
 import BaseService from "./shared/service/baseService";
-import axios from "axios";
 
 export default function App() {
   const [visible, setVisible] = React.useState(false);
