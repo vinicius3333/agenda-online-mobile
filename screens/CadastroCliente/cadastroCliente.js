@@ -39,7 +39,13 @@ export default function App({ navigation }) {
   return (
     <View>
       <Formik
-        initialValues={{ Usuario: "", Senha: "" }}
+        initialValues={{
+          nomeCompleto: "",
+          celular: "",
+          Usuario: "",
+          Senha: "",
+          confirmarSenha: "",
+        }}
         validationSchema={schema}
         onSubmit={(data) => {
           setLoading(true);
@@ -62,7 +68,14 @@ export default function App({ navigation }) {
             });
         }}
       >
-        {({ values, errors, handleSubmit, handleChange, handleBlur }) => (
+        {({
+          values,
+          errors,
+          handleSubmit,
+          handleChange,
+          handleBlur,
+          touched,
+        }) => (
           <ScrollView>
             <View style={styles.container}>
               <Title style={{ textAlign: "center" }}>
@@ -70,14 +83,14 @@ export default function App({ navigation }) {
               </Title>
               <TextInput
                 value={values.nomeCompleto}
-                error={errors.nomeCompleto}
+                error={touched.nomeCompleto && errors.nomeCompleto}
                 onChangeText={handleChange("nomeCompleto")}
                 onBlur={handleBlur("nomeCompleto")}
                 label="Nome completo"
               />
               <TextInput
                 value={values.celular}
-                error={errors.celular}
+                error={touched.celular && errors.celular}
                 onChangeText={handleChange("celular")}
                 onBlur={handleBlur("celular")}
                 label="Celular"
@@ -87,14 +100,14 @@ export default function App({ navigation }) {
               />
               <TextInput
                 value={values.usuario}
-                error={errors.usuario}
+                error={touched.usuario && errors.usuario}
                 onChangeText={handleChange("usuario")}
                 onBlur={handleBlur("usuario")}
                 label="Usuário"
               />
               <TextInput
                 value={values.senha}
-                error={errors.senha}
+                error={touched.senha && errors.senha}
                 nomeIcone={iconeSenha}
                 funcaoIcone={trocarTipoSenha}
                 label="Senha"
@@ -104,7 +117,7 @@ export default function App({ navigation }) {
               />
               <TextInput
                 value={values.confirmarSenha}
-                error={errors.confirmarSenha}
+                error={touched.confirmarSenha && errors.confirmarSenha}
                 nomeIcone={iconeSenha}
                 funcaoIcone={() => {
                   setMostrarConfirmarSenha(!mostrarConfirmarSenha);
