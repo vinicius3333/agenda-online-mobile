@@ -26,13 +26,22 @@ export default function App({ navigation }) {
       onSubmit={(data) => {
         console.log("Submit: ", data);
       }}
+      validateOnChange={false}
+      validateOnBlur={true}
     >
-      {({ errors, values, handleChange, handleBlur, handleSubmit }) => (
+      {({
+        errors,
+        values,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        touched,
+      }) => (
         <View style={styles.container}>
           <Title style={{ textAlign: "center" }}>Por favor</Title>
           <TextInput
             value={values.Usuario}
-            error={errors.Usuario}
+            error={touched.Usuario && errors.Usuario}
             onChangeText={handleChange("Usuario")}
             onBlur={handleBlur("Usuario")}
             nomeIcone="alert-circle-outline"
@@ -40,7 +49,7 @@ export default function App({ navigation }) {
           />
           <TextInput
             value={values.Senha}
-            error={errors.Senha}
+            error={touched.Senha && errors.Senha}
             mode="outlined"
             nomeIcone={iconeSenha}
             funcaoIcone={trocarTipoSenha}

@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import theme from "../shared/themes/baseTheme";
 import Login from "../screens/login";
-import Cadastro from "../screens/cadastro";
+import Cadastro from "../screens/CadastroPrestador/cadastro";
 import Home from "../screens/home";
 import CadastroCliente from "../screens/CadastroCliente/cadastroCliente";
 

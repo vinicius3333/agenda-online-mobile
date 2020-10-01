@@ -47,6 +47,7 @@ export default function App({ navigation }) {
           confirmarSenha: "",
         }}
         validationSchema={schema}
+        validateOnChange={false}
         onSubmit={(data) => {
           setLoading(true);
           const { nomeCompleto, celular, usuario, senha } = data;
@@ -78,9 +79,7 @@ export default function App({ navigation }) {
         }) => (
           <ScrollView>
             <View style={styles.container}>
-              <Title style={{ textAlign: "center" }}>
-                Cadastro de prestador de serviço
-              </Title>
+              <Title style={{ textAlign: "center" }}>Cadastro de cliente</Title>
               <TextInput
                 value={values.nomeCompleto}
                 error={touched.nomeCompleto && errors.nomeCompleto}
@@ -149,7 +148,6 @@ export default function App({ navigation }) {
         titulo="Sucesso!"
         subtitulo="Cadastro de cliente criado!"
         onClose={() => {
-          console.log("oi");
           setSucesso(false);
           setTimeout(() => {
             navigation.navigate("Login");

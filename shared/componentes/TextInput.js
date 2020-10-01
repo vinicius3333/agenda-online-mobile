@@ -16,7 +16,7 @@ const TextInputComponent = (props) => {
         }
         {...props}
         style={{ marginVertical: 4 }}
-        mode="outlined"
+        mode="flat"
       />
       {props.error && <Text style={styles.errorText}>{props.error}</Text>}
     </View>
