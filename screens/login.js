@@ -22,7 +22,7 @@ export default function App({ navigation }) {
 
   const { control, handleSubmit, errors } = useForm({
     resolver: yupResolver(schema),
-    mode: "onBlur",
+    mode: "all",
   });
   const onSubmit = (data) => console.log(data);
 
