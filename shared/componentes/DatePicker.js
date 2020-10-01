@@ -14,7 +14,7 @@ const DatePickerComponent = (props) => {
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setDate(currentDate);
-    props.onChange(currentDate);
+    props.onChange(currentDate, event);
   };
 
   return (

@@ -1,8 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { Title, Button, Subheading } from "react-native-paper";
+import { Title, Button } from "react-native-paper";
 import TextInput from "../../shared/componentes/TextInput";
-import { Formik } from "formik";
 import { ScrollView } from "react-native-gesture-handler";
 import theme from "../../shared/themes/baseTheme";
 import TextInputMask from "react-native-text-input-mask";
@@ -163,7 +162,7 @@ export default function App({ navigation }) {
             style={{ marginTop: 4 }}
             labelStyle={{ color: "white" }}
           >
-            ENTRAR
+            CADASTRAR
           </Button>
         </View>
       </ScrollView>

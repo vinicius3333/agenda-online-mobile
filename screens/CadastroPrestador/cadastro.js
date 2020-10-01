@@ -3,7 +3,6 @@ import { StyleSheet, View, Platform, Text } from "react-native";
 import { Title, Button, Subheading } from "react-native-paper";
 import TextInput from "../../shared/componentes/TextInput";
 import { Formik } from "formik";
-import Yup from "../../shared/validators/validator";
 import { ScrollView } from "react-native-gesture-handler";
 import theme from "../../shared/themes/baseTheme";
 import cadastroPrestadorService from "./cadastroPrestadorService";
@@ -12,6 +11,9 @@ import {
   ModalSucesso,
   DatePickerComponent,
 } from "../../shared/componentes/index";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers";
+import * as yup from "yup";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -32,268 +34,329 @@ export default function App({ navigation }) {
   );
   const [showTimerPickerFim, setShowTimerPickerFim] = React.useState(false);
 
-  const schema = Yup.object({
-    nomeCompleto: Yup.string().required().min(3),
-    email: Yup.string().required().email(),
-    empresa: Yup.string().required().min(2),
-    segmento: Yup.string().required().min(5),
-    cidade: Yup.string().required().min(5),
-    aberturaEstabelecimento: Yup.string()
-      .required()
-      .matches(
-        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Deve seguir o padrão: HH:MM"
-      ),
-    fechamentoEstabelecimento: Yup.string()
-      .required()
-      .matches(
-        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-        "Deve seguir o padrão: HH:MM"
-      ),
-    inicioAlmoco: Yup.string().required().min(5),
-    fimAlmoco: Yup.string(),
-    duracaoServico: Yup.string(),
-    usuario: Yup.string().required().min(5),
-    senha: Yup.string().required().min(5),
-    confirmarSenha: Yup.string()
-      .required()
-      .min(5)
-      .oneOf([Yup.ref("senha"), null], "As senhas tem que ser iguais."),
-  });
-
   function trocarTipoSenha() {
     setMostrarSenha(!mostrarSenha);
     setIconeSenha(mostrarSenha ? "eye-off-outline" : "eye-outline");
   }
 
+  const schema = yup.object().shape({
+    nomeCompleto: yup.string().required().min(3),
+    email: yup.string().required().email(),
+    empresa: yup.string().required().min(2),
+    segmento: yup.string().required().min(5),
+    cidade: yup.string().required().min(5),
+    aberturaEstabelecimento: yup
+      .string()
+      .required()
+      .matches(
+        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+        "Deve seguir o padrão: HH:MM"
+      ),
+    fechamentoEstabelecimento: yup
+      .string()
+      .required()
+      .matches(
+        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+        "Deve seguir o padrão: HH:MM"
+      ),
+    inicioAlmoco: yup.string().required().min(5),
+    fimAlmoco: yup.string(),
+    duracaoServico: yup.string(),
+    usuario: yup.string().required().min(5),
+    senha: yup.string().required().min(5),
+    confirmarSenha: yup
+      .string()
+      .required()
+      .min(5)
+      .oneOf([yup.ref("senha"), null], "As senhas tem que ser iguais."),
+  });
+
+  const { control, handleSubmit, errors, getValues, setValue, watch } = useForm(
+    {
+      resolver: yupResolver(schema),
+      mode: "onBlur",
+      reValidateMode: "onChange",
+    }
+  );
+
+  const onSubmit = (data) => {
+    console.log("Submit: ", data);
+  };
+
   return (
-    <Formik
-      enableReinitialize
-      initialValues={{
-        nomeCompleto: "",
-        email: "",
-        empresa: "",
-        segmento: "",
-        cidade: "",
-        aberturaEstabelecimento: "",
-        fechamentoEstabelecimento: "",
-        inicioAlmoco: "",
-        fimAlmoco: "",
-        duracaoServico: "",
-        Usuario: "",
-        Senha: "",
-        confirmarSenha: "",
-      }}
-      validationSchema={schema}
-      onSubmit={(data) => {
-        console.log("Submit: ", data);
-      }}
-    >
-      {({
-        values,
-        errors,
-        handleChange,
-        handleBlur,
-        touched,
-        setFieldValue,
-      }) => (
-        <ScrollView>
-          <DatePickerComponent
-            mode="time"
-            show={showTimerPickerAbertura}
-            onChange={(date = new Date()) => {
-              setShowTimerPickerAbertura(false);
-              const dataAbertura = new Date(date)
-                .toTimeString()
-                .split(" ")[0]
-                .substring(0, 5);
-              setFieldValue("aberturaEstabelecimento", dataAbertura);
-            }}
+    <View>
+      <ScrollView>
+        <View style={styles.container}>
+          <Title style={{ textAlign: "center" }}>
+            Cadastro de prestador de serviço
+          </Title>
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.nomeCompleto?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Nome completo"
+              />
+            )}
+            name="nomeCompleto"
+            defaultValue=""
           />
-          <DatePickerComponent
-            mode="time"
-            show={showTimerPickerFechamento}
-            onChange={(date = new Date()) => {
-              setShowTimerPickerFechamento(false);
-              const dataFechamento = new Date(date)
-                .toTimeString()
-                .split(" ")[0]
-                .substring(0, 5);
-              setFieldValue("fechamentoEstabelecimento", dataFechamento);
-            }}
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.email?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Email"
+              />
+            )}
+            name="email"
+            defaultValue=""
           />
-          <DatePickerComponent
-            mode="time"
-            show={showTimerPickerInicio}
-            onChange={(date = new Date()) => {
-              setShowTimerPickerInicio(false);
-              const dataInicio = new Date(date)
-                .toTimeString()
-                .split(" ")[0]
-                .substring(0, 5);
-              setFieldValue("inicioAlmoco", dataInicio);
-            }}
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.empresa?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Empresa"
+              />
+            )}
+            name="empresa"
+            defaultValue=""
           />
-          <DatePickerComponent
-            mode="time"
-            show={showTimerPickerFim}
-            onChange={(date = new Date()) => {
-              setShowTimerPickerFim(false);
-              const dataFim = new Date(date)
-                .toTimeString()
-                .split(" ")[0]
-                .substring(0, 5);
-              setFieldValue("fimAlmoco", dataFim);
-            }}
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.cidade?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Cidade"
+              />
+            )}
+            name="cidade"
+            defaultValue=""
           />
-          <View style={styles.container}>
-            <Title style={{ textAlign: "center" }}>
-              Cadastro de prestador de serviço
-            </Title>
-            <TextInput
-              value={values.nomeCompleto}
-              error={touched.nomeCompleto && errors.nomeCompleto}
-              onChangeText={handleChange("nomeCompleto")}
-              onBlur={handleBlur("nomeCompleto")}
-              label="Nome completo"
-            />
-            <TextInput
-              value={values.email}
-              error={touched.email && errors.email}
-              onChangeText={handleChange("email")}
-              onBlur={handleBlur("email")}
-              label="Email"
-            />
-            <TextInput
-              value={values.empresa}
-              error={touched.empresa && errors.empresa}
-              onChangeText={handleChange("empresa")}
-              onBlur={handleBlur("empresa")}
-              label="Empresa"
-            />
-            <TextInput
-              value={values.segmento}
-              error={touched.segmento && errors.segmento}
-              onChangeText={handleChange("segmento")}
-              onBlur={handleBlur("segmento")}
-              label="Segmento"
-            />
-            <TextInput
-              value={values.cidade}
-              error={touched.cidade && errors.cidade}
-              onChangeText={handleChange("cidade")}
-              onBlur={handleBlur("cidade")}
-              label="Cidade"
-            />
-            <TextInput
-              value={values.aberturaEstabelecimento}
-              error={
-                touched.aberturaEstabelecimento &&
-                errors.aberturaEstabelecimento
-              }
-              onChangeText={handleChange("aberturaEstabelecimento")}
-              onBlur={handleBlur("aberturaEstabelecimento")}
-              onFocus={() => {
-                setShowTimerPickerAbertura(true);
-              }}
-              label="Abertura do estabelecimento"
-              maxLength={5}
-            />
-            <TextInput
-              value={values.fechamentoEstabelecimento}
-              error={
-                touched.fechamentoEstabelecimento &&
-                errors.fechamentoEstabelecimento
-              }
-              onChangeText={handleChange("fechamentoEstabelecimento")}
-              onBlur={handleBlur("fechamentoEstabelecimento")}
-              label="Fechamento do estabelecimento"
-              onFocus={() => {
-                setShowTimerPickerFechamento(true);
-              }}
-              maxLength={5}
-            />
-            <TextInput
-              value={values.inicioAlmoco}
-              error={touched.inicioAlmoco && errors.inicioAlmoco}
-              onChangeText={handleChange("inicioAlmoco")}
-              onBlur={handleBlur("inicioAlmoco")}
-              label="Início do almoço"
-              disabled={
-                values.aberturaEstabelecimento === "" &&
-                values.fechamentoEstabelecimento === ""
-              }
-              onFocus={() => {
-                setShowTimerPickerInicio(true);
-              }}
-            />
-            <TextInput
-              value={values.fimAlmoco}
-              error={touched.fimAlmoco && errors.fimAlmoco}
-              onChangeText={handleChange("fimAlmoco")}
-              onBlur={handleBlur("fimAlmoco")}
-              label="Fim do almoço"
-              disabled={
-                values.aberturaEstabelecimento === "" &&
-                values.fechamentoEstabelecimento === ""
-              }
-              onFocus={() => {
-                setShowTimerPickerFim(true);
-              }}
-            />
-            <TextInput
-              value={values.duracaoServico}
-              error={touched.duracaoServico && errors.duracaoServico}
-              onChangeText={handleChange("duracaoServico")}
-              onBlur={handleBlur("duracaoServico")}
-              label="Duração do serviço"
-            />
-            <TextInput
-              value={values.usuario}
-              error={touched.usuario && errors.usuario}
-              onChangeText={handleChange("usuario")}
-              onBlur={handleBlur("usuario")}
-              label="Usuário"
-            />
-            <TextInput
-              value={values.senha}
-              error={touched.senha && errors.senha}
-              nomeIcone={iconeSenha}
-              funcaoIcone={trocarTipoSenha}
-              label="Senha"
-              secureTextEntry={mostrarSenha}
-              onChangeText={handleChange("senha")}
-              onBlur={handleBlur("senha")}
-            />
-            <TextInput
-              value={values.confirmarSenha}
-              error={touched.confirmarSenha && errors.confirmarSenha}
-              nomeIcone={iconeConfirmarSenha}
-              funcaoIcone={() => {
-                setMostrarConfirmarSenha(!mostrarConfirmarSenha);
-                setIconeConfirmarSenha(
-                  mostrarConfirmarSenha ? "eye-off-outline" : "eye-outline"
-                );
-              }}
-              label="Confirmar senha"
-              secureTextEntry={mostrarConfirmarSenha}
-              onChangeText={handleChange("confirmarSenha")}
-              onBlur={handleBlur("confirmarSenha")}
-            />
-            <Button
-              mode="contained"
-              theme={theme.colors.success}
-              onPress={() => navigation.navigate("Login")}
-              contentStyle={styles.button}
-              style={{ marginTop: 4 }}
-              labelStyle={{ color: "white" }}
-            >
-              ENTRAR
-            </Button>
-          </View>
-        </ScrollView>
-      )}
-    </Formik>
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.aberturaEstabelecimento?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Abertura do estabelecimento"
+                maxLength={5}
+                mostrarCalendario={true}
+                onChangeTimer={(date) => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setValue("aberturaEstabelecimento", dataValue);
+                }}
+              />
+            )}
+            name="aberturaEstabelecimento"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.fechamentoEstabelecimento?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Fechamento do estabelecimento"
+                maxLength={5}
+                onFocus={() => {
+                  setShowTimerPickerFechamento(true);
+                }}
+                mostrarCalendario={true}
+                onChangeTimer={(date) => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setValue("fechamentoEstabelecimento", dataValue);
+                }}
+              />
+            )}
+            name="fechamentoEstabelecimento"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.inicioAlmoco?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Início do almoço"
+                maxLength={5}
+                onFocus={() => {
+                  setShowTimerPickerInicio(true);
+                }}
+                disabled={
+                  getValues("aberturaEstabelecimento") == "" ||
+                  (getValues("aberturaEstabelecimento") == undefined &&
+                    getValues("fechamentoEstabelecimento") == "") ||
+                  getValues("fechamentoEstabelecimento") == undefined
+                }
+                mostrarCalendario={true}
+                onChangeTimer={() => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setValue("inicioAlmoco", dataValue);
+                }}
+              />
+            )}
+            name="inicioAlmoco"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.fimAlmoco?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Fim do almoço"
+                maxLength={5}
+                onFocus={() => {
+                  setShowTimerPickerInicio(true);
+                }}
+                disabled={
+                  getValues("aberturaEstabelecimento") == "" ||
+                  (getValues("aberturaEstabelecimento") == undefined &&
+                    getValues("fechamentoEstabelecimento") == "") ||
+                  getValues("fechamentoEstabelecimento") == undefined
+                }
+                mostrarCalendario={true}
+                onChangeTimer={() => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setValue("fimAlmoco", dataValue);
+                }}
+              />
+            )}
+            name="fimAlmoco"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.duracaoServico?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Duração do serviço"
+                maxLength={5}
+                onFocus={() => {
+                  setShowTimerPickerInicio(true);
+                }}
+                disabled={
+                  getValues("aberturaEstabelecimento") == "" ||
+                  (getValues("aberturaEstabelecimento") == undefined &&
+                    getValues("fechamentoEstabelecimento") == "") ||
+                  getValues("fechamentoEstabelecimento") == undefined
+                }
+                mostrarCalendario={true}
+                onChangeTimer={(date) => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setValue("duracaoServico", dataValue);
+                }}
+              />
+            )}
+            name="duracaoServico"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.usuario?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Usuário"
+              />
+            )}
+            name="usuario"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.senha?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Senha"
+                nomeIcone={iconeSenha}
+                funcaoIcone={trocarTipoSenha}
+                secureTextEntry={mostrarSenha}
+              />
+            )}
+            name="senha"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.confirmarSenha?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Confirmar senha"
+                nomeIcone={iconeConfirmarSenha}
+                funcaoIcone={() => {
+                  setMostrarConfirmarSenha(!mostrarConfirmarSenha);
+                  setIconeConfirmarSenha(
+                    mostrarConfirmarSenha ? "eye-off-outline" : "eye-outline"
+                  );
+                }}
+                secureTextEntry={mostrarConfirmarSenha}
+              />
+            )}
+            name="confirmarSenha"
+            defaultValue=""
+          />
+          <Button
+            mode="contained"
+            theme={theme.colors.success}
+            onPress={() => handleSubmit(onSubmit)}
+            contentStyle={styles.button}
+            style={{ marginTop: 4 }}
+            labelStyle={{ color: "white" }}
+          >
+            CADASTRAR
+          </Button>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
