@@ -32,10 +32,10 @@ export default function App({ navigation }) {
     [mostrarConfirmarSenha, setMostrarConfirmarSenha] = React.useState(true),
     [sabado, setSabado] = React.useState(false),
     [domingo, setDomingo] = React.useState(false),
-    [loading, setLoading] = React.useState(false),
-    [pegouLocalizacao, setpegouLocalizacao] = React.useState(false),
-    [sucesso, setSucesso] = React.useState(false);
+    [pegouLocalizacao, setpegouLocalizacao] = React.useState(false);
 
+  const [loading, setLoading] = React.useState(false);
+  const [sucesso, setSucesso] = React.useState(false);
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
   const [error, setError] = React.useState("");
   const [status, setStatus] = React.useState("");
@@ -160,6 +160,7 @@ export default function App({ navigation }) {
           setError(error.message);
           setStatus(500);
         }
+        setMostrarModalErro(true);
       })
       .finally(() => {
         setLoading(false);

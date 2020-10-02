@@ -1,14 +1,26 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Title, Button, Subheading } from "react-native-paper";
-import TextInput from "../shared/componentes/TextInput";
+import TextInput from "../../shared/componentes/TextInput";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
+import LoginService from "./loginService";
+import {
+  ModalLoading,
+  ModalSucesso,
+  ModalErro,
+} from "../../shared/componentes/index";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
     [mostrarSenha, setMostrarSenha] = React.useState(true);
+
+  const [loading, setLoading] = React.useState(false);
+  const [sucesso, setSucesso] = React.useState(false);
+  const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [status, setStatus] = React.useState("");
 
   const schema = yup.object().shape({
     Usuario: yup.string().required().min(3),
@@ -24,7 +36,35 @@ export default function App({ navigation }) {
     resolver: yupResolver(schema),
     mode: "all",
   });
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = (data) => {
+    const { Usuario, Senha } = data;
+
+    let dataLogin = {
+      UserName: Usuario,
+      Password: Senha,
+    };
+
+    setLoading(true);
+
+    LoginService.postLogin(dataLogin)
+      .then((res) => {
+        console.log(res);
+        setSucesso(true);
+      })
+      .catch((error) => {
+        if (error.response) {
+          setStatus(error.response.status);
+          setError(error.response.data?.message);
+        } else {
+          setError(error.message);
+          setStatus(500);
+        }
+        setMostrarModalErro(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -89,6 +129,24 @@ export default function App({ navigation }) {
       >
         Cadastro de cliente
       </Button>
+      <ModalLoading loading={loading} />
+      <ModalSucesso
+        visible={sucesso}
+        titulo="Sucesso!"
+        subtitulo="Logado com êxito!"
+        onClose={() => {
+          setSucesso(false);
+          setTimeout(() => {
+            navigation.navigate("Login");
+          }, 100);
+        }}
+      />
+      <ModalErro
+        visible={mostrarModalErro}
+        error={error}
+        status={status}
+        onClose={() => setMostrarModalErro(false)}
+      />
     </View>
   );
 }
