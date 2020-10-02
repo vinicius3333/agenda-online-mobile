@@ -9,6 +9,7 @@ const theme = {
     accent: "#f1c40f",
     header: "#007bff",
     success: "#28a745",
+    error: "#ED1651",
   },
   text: {
     size: {

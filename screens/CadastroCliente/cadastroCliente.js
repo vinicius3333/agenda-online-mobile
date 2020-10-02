@@ -6,7 +6,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import theme from "../../shared/themes/baseTheme";
 import TextInputMask from "react-native-text-input-mask";
 import cadastroClienteService from "./cadastroClienteService";
-import { ModalLoading, ModalSucesso } from "../../shared/componentes/index";
+import {
+  ModalLoading,
+  ModalSucesso,
+  ModalErro,
+} from "../../shared/componentes/index";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
@@ -20,6 +24,10 @@ export default function App({ navigation }) {
     [mostrarConfirmarSenha, setMostrarConfirmarSenha] = React.useState(true),
     [loading, setLoading] = React.useState(false),
     [sucesso, setSucesso] = React.useState(false);
+
+  const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [status, setStatus] = React.useState("");
 
   const schema = yup.object().shape({
     nomeCompleto: yup.string().required().min(3),
@@ -59,6 +67,16 @@ export default function App({ navigation }) {
       .postRegistroUsuario(dataCliente)
       .then(() => {
         setSucesso(true);
+      })
+      .catch((error) => {
+        if (error.response) {
+          setStatus(error.response.status);
+          setError(error.response.data);
+        } else {
+          setError(error.message);
+          setStatus(500);
+        }
+        setMostrarModalErro(true);
       })
       .finally(() => {
         setLoading(false);
@@ -178,6 +196,12 @@ export default function App({ navigation }) {
         }}
       />
       <ModalLoading loading={loading} />
+      <ModalErro
+        visible={mostrarModalErro}
+        error={error}
+        status={status}
+        onClose={() => setMostrarModalErro(false)}
+      />
     </View>
   );
 }

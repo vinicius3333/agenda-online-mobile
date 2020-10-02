@@ -1,6 +1,12 @@
 import React from "react";
-import { StyleSheet, View, Platform, Text } from "react-native";
-import { Title, Button, Subheading } from "react-native-paper";
+import { StyleSheet, View, Text } from "react-native";
+import {
+  Title,
+  Button,
+  Checkbox,
+  Paragraph,
+  TouchableRipple,
+} from "react-native-paper";
 import TextInput from "../../shared/componentes/TextInput";
 import { Formik } from "formik";
 import { ScrollView } from "react-native-gesture-handler";
@@ -9,11 +15,13 @@ import cadastroPrestadorService from "./cadastroPrestadorService";
 import {
   ModalLoading,
   ModalSucesso,
-  DatePickerComponent,
+  ModalErro,
 } from "../../shared/componentes/index";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
+import Geolocation from "@react-native-community/geolocation";
+import axios from "axios";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -21,18 +29,16 @@ export default function App({ navigation }) {
     [iconeConfirmarSenha, setIconeConfirmarSenha] = React.useState(
       "eye-outline"
     ),
-    [mostrarConfirmarSenha, setMostrarConfirmarSenha] = React.useState(true);
-  const [showTimerPickerAbertura, setShowTimerPickerAbertura] = React.useState(
-    false
-  );
-  const [
-    showTimerPickerFechamento,
-    setShowTimerPickerFechamento,
-  ] = React.useState(false);
-  const [showTimerPickerInicio, setShowTimerPickerInicio] = React.useState(
-    false
-  );
-  const [showTimerPickerFim, setShowTimerPickerFim] = React.useState(false);
+    [mostrarConfirmarSenha, setMostrarConfirmarSenha] = React.useState(true),
+    [sabado, setSabado] = React.useState(false),
+    [domingo, setDomingo] = React.useState(false),
+    [loading, setLoading] = React.useState(false),
+    [pegouLocalizacao, setpegouLocalizacao] = React.useState(false),
+    [sucesso, setSucesso] = React.useState(false);
+
+  const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [status, setStatus] = React.useState("");
 
   function trocarTipoSenha() {
     setMostrarSenha(!mostrarSenha);
@@ -59,9 +65,26 @@ export default function App({ navigation }) {
         /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
         "Deve seguir o padrão: HH:MM"
       ),
-    inicioAlmoco: yup.string().required().min(5),
-    fimAlmoco: yup.string(),
-    duracaoServico: yup.string(),
+    inicioAlmoco: yup
+      .string()
+      .required()
+      .matches(
+        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+        "Deve seguir o padrão: HH:MM"
+      ),
+    fimAlmoco: yup
+      .string()
+      .matches(
+        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+        "Deve seguir o padrão: HH:MM"
+      ),
+    duracaoServico: yup
+      .string()
+      .matches(
+        /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+        "Deve seguir o padrão: HH:MM"
+      ),
+    endereco: yup.string(),
     usuario: yup.string().required().min(5),
     senha: yup.string().required().min(5),
     confirmarSenha: yup
@@ -80,8 +103,98 @@ export default function App({ navigation }) {
   );
 
   const onSubmit = (data) => {
-    console.log("Submit: ", data);
+    setLoading(true);
+    const {
+      aberturaEstabelecimento,
+      cidade,
+      duracaoServico,
+      email,
+      empresa,
+      endereco,
+      fechamentoEstabelecimento,
+      fimAlmoco,
+      inicioAlmoco,
+      nomeCompleto,
+      segmento,
+      senha,
+      usuario,
+    } = data;
+    let fds = 0;
+    if (sabado && domingo) {
+      fds = 3;
+    } else if (domingo && !sabado) {
+      fds = 2;
+    } else if (sabado && !domingo) {
+      fds = 1;
+    }
+
+    let dataCliente = {
+      UserName: usuario,
+      Company: empresa,
+      ImagemPerfil: "",
+      Email: email,
+      MarketSegment: segmento,
+      Celular: "",
+      Endereco: endereco,
+      Cidade: cidade,
+      Abertura: aberturaEstabelecimento,
+      Fechamento: fechamentoEstabelecimento,
+      Duracao: duracaoServico,
+      AlmocoIni: inicioAlmoco,
+      AlmocoFim: fimAlmoco,
+      Fds: fds,
+      Password: senha,
+      FullName: nomeCompleto,
+    };
+
+    cadastroPrestadorService
+      .postRegistroPrestador(dataCliente)
+      .then(() => {
+        setSucesso(true);
+      })
+      .catch((error) => {
+        if (error.response) {
+          setStatus(error.response.status);
+          setError(error.response.data);
+        } else {
+          setError(error.message);
+          setStatus(500);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
+  React.useEffect(() => {
+    Geolocation.getCurrentPosition((info) => {
+      if (pegouLocalizacao) return;
+      setLoading(true);
+      const lat = info.coords.latitude;
+      const long = info.coords.longitude;
+      const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${long}&key=579f90a38d994545ab5bcf5d2adb3966`;
+      axios
+        .get(url)
+        .then((res) => {
+          setpegouLocalizacao(true);
+          if (res.data.results.length === 0) return;
+          const result = res.data.results[0];
+          if (result.components.city) {
+            setValue("cidade", result.components.city);
+          } else if (result.components.town) {
+            setValue("cidade", result.components.town);
+          }
+          setValue("endereco", result.formatted);
+        })
+        .catch(() => {
+          setError("Localização não encontrada.");
+          setStatus(500);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    });
+  }, []);
 
   return (
     <View>
@@ -137,6 +250,20 @@ export default function App({ navigation }) {
             render={({ onChange, onBlur, value }) => (
               <TextInput
                 value={value}
+                error={errors.segmento?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Segmento"
+              />
+            )}
+            name="segmento"
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
                 error={errors.cidade?.message}
                 onChangeText={(value) => onChange(value)}
                 onBlur={onBlur}
@@ -179,9 +306,6 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Fechamento do estabelecimento"
                 maxLength={5}
-                onFocus={() => {
-                  setShowTimerPickerFechamento(true);
-                }}
                 mostrarCalendario={true}
                 onChangeTimer={(date) => {
                   const dataValue = new Date(date)
@@ -205,17 +329,8 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Início do almoço"
                 maxLength={5}
-                onFocus={() => {
-                  setShowTimerPickerInicio(true);
-                }}
-                disabled={
-                  getValues("aberturaEstabelecimento") == "" ||
-                  (getValues("aberturaEstabelecimento") == undefined &&
-                    getValues("fechamentoEstabelecimento") == "") ||
-                  getValues("fechamentoEstabelecimento") == undefined
-                }
                 mostrarCalendario={true}
-                onChangeTimer={() => {
+                onChangeTimer={(date) => {
                   const dataValue = new Date(date)
                     .toTimeString()
                     .split(" ")[0]
@@ -237,17 +352,8 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Fim do almoço"
                 maxLength={5}
-                onFocus={() => {
-                  setShowTimerPickerInicio(true);
-                }}
-                disabled={
-                  getValues("aberturaEstabelecimento") == "" ||
-                  (getValues("aberturaEstabelecimento") == undefined &&
-                    getValues("fechamentoEstabelecimento") == "") ||
-                  getValues("fechamentoEstabelecimento") == undefined
-                }
                 mostrarCalendario={true}
-                onChangeTimer={() => {
+                onChangeTimer={(date) => {
                   const dataValue = new Date(date)
                     .toTimeString()
                     .split(" ")[0]
@@ -269,28 +375,42 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Duração do serviço"
                 maxLength={5}
-                onFocus={() => {
-                  setShowTimerPickerInicio(true);
-                }}
-                disabled={
-                  getValues("aberturaEstabelecimento") == "" ||
-                  (getValues("aberturaEstabelecimento") == undefined &&
-                    getValues("fechamentoEstabelecimento") == "") ||
-                  getValues("fechamentoEstabelecimento") == undefined
-                }
-                mostrarCalendario={true}
-                onChangeTimer={(date) => {
-                  const dataValue = new Date(date)
-                    .toTimeString()
-                    .split(" ")[0]
-                    .substring(0, 5);
-                  setValue("duracaoServico", dataValue);
-                }}
               />
             )}
             name="duracaoServico"
             defaultValue=""
           />
+          <Controller
+            control={control}
+            render={({ onChange, onBlur, value }) => (
+              <TextInput
+                value={value}
+                error={errors.endereco?.message}
+                onChangeText={(value) => onChange(value)}
+                onBlur={onBlur}
+                label="Endereço"
+              />
+            )}
+            name="endereco"
+            defaultValue=""
+          />
+          <Text>Dias de folga</Text>
+          <TouchableRipple onPress={() => setSabado(!sabado)}>
+            <View style={styles.row}>
+              <View pointerEvents="none">
+                <Checkbox status={sabado ? "checked" : "unchecked"} />
+              </View>
+              <Paragraph>Sábado</Paragraph>
+            </View>
+          </TouchableRipple>
+          <TouchableRipple onPress={() => setDomingo(!domingo)}>
+            <View style={styles.row}>
+              <View pointerEvents="none">
+                <Checkbox status={domingo ? "checked" : "unchecked"} />
+              </View>
+              <Paragraph>Domingo</Paragraph>
+            </View>
+          </TouchableRipple>
           <Controller
             control={control}
             render={({ onChange, onBlur, value }) => (
@@ -347,7 +467,7 @@ export default function App({ navigation }) {
           <Button
             mode="contained"
             theme={theme.colors.success}
-            onPress={() => handleSubmit(onSubmit)}
+            onPress={handleSubmit(onSubmit)}
             contentStyle={styles.button}
             style={{ marginTop: 4 }}
             labelStyle={{ color: "white" }}
@@ -356,6 +476,24 @@ export default function App({ navigation }) {
           </Button>
         </View>
       </ScrollView>
+      <ModalLoading loading={loading} />
+      <ModalSucesso
+        visible={sucesso}
+        titulo="Sucesso!"
+        subtitulo="Cadastro do prestador de serviço criado!"
+        onClose={() => {
+          setSucesso(false);
+          setTimeout(() => {
+            navigation.navigate("Login");
+          }, 100);
+        }}
+      />
+      <ModalErro
+        visible={mostrarModalErro}
+        error={error}
+        status={status}
+        onClose={() => setMostrarModalErro(false)}
+      />
     </View>
   );
 }
@@ -369,5 +507,10 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 50,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
 });

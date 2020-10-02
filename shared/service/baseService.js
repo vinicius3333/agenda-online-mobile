@@ -17,14 +17,13 @@ class BaseService {
     );
   }
 
-  startResponseAxios(callback) {
+  startResponseAxios() {
     axios.interceptors.response.use(
       (response) => {
         return response;
       },
       (error) => {
-        callback(error);
-        return error;
+        return Promise.reject(error);
       }
     );
   }
