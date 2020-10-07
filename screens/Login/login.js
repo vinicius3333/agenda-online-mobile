@@ -11,6 +11,7 @@ import {
   ModalSucesso,
   ModalErro,
 } from "../../shared/componentes/index";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -36,6 +37,15 @@ export default function App({ navigation }) {
     resolver: yupResolver(schema),
     mode: "all",
   });
+
+  async function salvarToken(token) {
+    try {
+      await AsyncStorage.setItem("@tokenBeaer", token);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const onSubmit = (data) => {
     const { Usuario, Senha } = data;
 
@@ -48,7 +58,7 @@ export default function App({ navigation }) {
 
     LoginService.postLogin(dataLogin)
       .then((res) => {
-        console.log(res);
+        salvarToken(res.data.token);
         setSucesso(true);
       })
       .catch((error) => {
