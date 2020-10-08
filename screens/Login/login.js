@@ -13,7 +13,7 @@ import {
 } from "../../shared/componentes/index";
 import AsyncStorage from "@react-native-community/async-storage";
 
-export default function App({ navigation }) {
+export default function App({ navigation, logar }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
     [mostrarSenha, setMostrarSenha] = React.useState(true);
 
@@ -147,7 +147,7 @@ export default function App({ navigation }) {
         onClose={() => {
           setSucesso(false);
           setTimeout(() => {
-            navigation.navigate("Login");
+            logar();
           }, 100);
         }}
       />

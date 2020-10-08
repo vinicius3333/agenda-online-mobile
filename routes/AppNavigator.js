@@ -10,48 +10,57 @@ import PaginaAdm from "../screens/PaginaAdm/paginaAdm";
 import PaginaUsuario from "../screens/PaginaUsuario/paginaUsuario";
 import Loading from "../screens/loading";
 
+import { MenuHeader } from "../shared/componentes/index";
+
 import jwt_decode from "jwt-decode";
 import AsyncStorage from "@react-native-community/async-storage";
-
-function HomeScreen({ navigation }) {
-  return <Home navigation={navigation} />;
-}
-
-function LoginScreen({ navigation }) {
-  return <Login navigation={navigation} />;
-}
-
-function CadastroPrestadorScreen({ navigation }) {
-  return <Cadastro navigation={navigation} />;
-}
-
-function CadastroClienteScreen({ navigation }) {
-  return <CadastroCliente navigation={navigation} />;
-}
-
-function PaginaAdmScreen() {
-  return <PaginaAdm />;
-}
-
-function PaginaUsuarioScreen() {
-  return <PaginaUsuario />;
-}
-
-function LoadingScreen() {
-  return <Loading />;
-}
-
-const Stack = createStackNavigator();
+import usuarioService from "../shared/service/usuarioService";
 
 export default function App() {
+  function HomeScreen({ navigation }) {
+    return <Home navigation={navigation} />;
+  }
+
+  function LoginScreen({ navigation }) {
+    return <Login navigation={navigation} logar={() => getToken()} />;
+  }
+
+  function CadastroPrestadorScreen({ navigation }) {
+    return <Cadastro navigation={navigation} />;
+  }
+
+  function CadastroClienteScreen({ navigation }) {
+    return <CadastroCliente navigation={navigation} />;
+  }
+
+  function PaginaAdmScreen() {
+    return <PaginaAdm />;
+  }
+
+  function PaginaUsuarioScreen() {
+    return <PaginaUsuario />;
+  }
+
+  function LoadingScreen() {
+    return <Loading />;
+  }
+
+  const Stack = createStackNavigator();
+
   let [token, setToken] = React.useState("");
   let [role, setRole] = React.useState("");
   const getToken = async () => {
     try {
       const value = await AsyncStorage.getItem("@tokenBeaer");
       if (value !== null) {
+        const infoToken = jwt_decode(value);
+        let res = await usuarioService.getUsuario(infoToken.UserId);
+        if (res.data === "user not found") {
+          setToken(null);
+          await AsyncStorage.removeItem("@tokenBeaer");
+          return;
+        }
         setToken(value);
-        console.log(jwt_decode(value));
         setRole(jwt_decode(value).role);
         return;
       }
@@ -112,9 +121,19 @@ export default function App() {
               fontWeight: "bold",
             },
             headerTitleAlign: "left",
+            headerRight: () => (
+              <MenuHeader
+                trocarImagem={() => console.log("trocando")}
+                editarPerfil={() => console.log("editarPerfil")}
+                sair={async () => {
+                  await AsyncStorage.removeItem("@tokenBeaer");
+                  setToken(null);
+                }}
+              />
+            ),
           }}
         >
-          {role === "adm" ? (
+          {role === "Adm" ? (
             <Stack.Screen
               name="Pagina do prestador"
               component={PaginaAdmScreen}
