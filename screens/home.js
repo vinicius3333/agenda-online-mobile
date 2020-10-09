@@ -5,23 +5,7 @@ import theme from "../shared/themes/baseTheme";
 
 export default function App({ navigation }) {
   React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Button
-          style={{
-            backgroundColor: theme.colors.success,
-            width: 100,
-            alignSelf: "center",
-            marginRight: 8,
-          }}
-          labelStyle={{ color: "#fff", fontWeight: "bold" }}
-          mode="contained"
-          onPress={() => navigation.navigate("Login")}
-        >
-          ENTRAR
-        </Button>
-      ),
-    });
+    navigation.setOptions({});
   });
   return (
     <View style={styles.container}>

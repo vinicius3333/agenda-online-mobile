@@ -124,7 +124,10 @@ export default function App({ navigation, logar }) {
       <Subheading style={{ paddingVertical: 12, textAlign: "center" }}>
         Não tem login? Cadastre-se abaixo
       </Subheading>
-      <Button mode="text" onPress={() => navigation.goBack()}>
+      <Button
+        mode="text"
+        onPress={() => navigation.navigate("Prestadores de serviço")}
+      >
         Lista de Empresas
       </Button>
       <Button
