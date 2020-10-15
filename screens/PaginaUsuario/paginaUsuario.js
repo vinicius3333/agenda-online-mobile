@@ -57,33 +57,26 @@ export default function App({ idUsuario, mostrando }) {
     setMostrarModalErro(true);
   }
 
-  function getListaAdm() {
+  function getListaAdm(isCancelled) {
     return new Promise((resolve) => {
       PaginaUsuarioService.getListaAdmService()
         .then((res) => {
-          setListaAdm(res.data);
+          if (!isCancelled) {
+            setListaAdm(res.data);
+          }
         })
         .catch((err) => handlerError(err))
         .finally(() => resolve());
     });
   }
 
-  function getListaCliente() {
-    return new Promise((resolve) => {
-      PaginaUsuarioService.getListaClienteService()
-        .then((res) => {
-          setListaCliente(res.data);
-        })
-        .catch((err) => handlerError(err))
-        .finally(() => resolve());
-    });
-  }
-
-  function getImagemPerfil() {
+  function getImagemPerfil(isCancelled) {
     return new Promise((resolve) => {
       PaginaUsuarioService.getImagemPerfilService(idUsuario)
         .then((res) => {
-          setImagem(res.data);
+          if (!isCancelled) {
+            setImagem(res.data);
+          }
         })
         .catch((err) => handlerError(err))
         .finally(() => resolve());
@@ -98,22 +91,26 @@ export default function App({ idUsuario, mostrando }) {
     });
   }
 
-  function getListaAgendamentos() {
+  function getListaAgendamentos(isCancelled) {
     return new Promise((resolve) => {
       PaginaUsuarioService.getListaAgendamentosService(idUsuario)
         .then((res) => {
-          setListaAgendamentos(res.data);
+          if (!isCancelled) {
+            setListaAgendamentos(res.data);
+          }
         })
         .catch((err) => handlerError(err))
         .finally(() => resolve());
     });
   }
 
-  function getListaDiasAgendados() {
+  function getListaDiasAgendados(isCancelled) {
     return new Promise((resolve) => {
       PaginaUsuarioService.getListaDiasAgendadosService(idUsuario)
         .then((res) => {
-          setListaDias(res.data);
+          if (!isCancelled) {
+            setListaDias(res.data);
+          }
         })
         .catch((err) => handlerError(err))
         .finally(() => resolve());
@@ -121,23 +118,29 @@ export default function App({ idUsuario, mostrando }) {
   }
 
   React.useEffect(() => {
+    let isCancelled = false;
     async function onInit() {
       setLoading(true);
-      getListaAdm().finally(() => {
-        getListaCliente().finally(() => {
-          getImagemPerfil().finally(() => {
+      getListaAdm(isCancelled).finally(() => {
+          getImagemPerfil(isCancelled).finally(() => {
             delMotorRemocao().finally(() => {
-              getListaAgendamentos().finally(() => {
-                getListaDiasAgendados().finally(() => {
-                  setLoading(false);
+              getListaAgendamentos(isCancelled).finally(() => {
+                getListaDiasAgendados(isCancelled).finally(() => {
+                  if (!isCancelled) {
+                    setLoading(false)
+                  }
                 });
               });
             });
           });
-        });
       });
     }
-    onInit();
+    if (!isCancelled) {
+      onInit();
+    }
+    return () => {
+      isCancelled = true;
+    }
   }, []);
 
   function comparaDataAgenda(agendas, data) {
@@ -174,10 +177,11 @@ export default function App({ idUsuario, mostrando }) {
         ) : (
           <ParallaxImage
             source={{
-              uri: `data:image/png;base64,${item.imagemPerfilPrestador}`,
+              uri: `${item.imagemPerfilPrestador}`,
             }}
             containerStyle={styles.imageContainer}
             style={styles.image}
+            dimensions={{ width: 50, height: 50 }}
             parallaxFactor={0.4}
             {...parallaxProps}
           />
@@ -203,6 +207,13 @@ export default function App({ idUsuario, mostrando }) {
   return (
     <View style={styles.container}>
       <ScrollView>
+        <IconButton
+          style={{ alignSelf: "flex-end" }}
+          icon="calendar"
+          size={40}
+          onPress={() => console.log("agendar")}
+          color={theme.colors.header}
+        />
         {listaDias.map((prop, key) => {
           return (
             <View key={key} style={{ paddingBottom: 8 }}>
@@ -262,8 +273,8 @@ const styles = StyleSheet.create({
   },
   image: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 50,
-    resizeMode: "center",
+    borderRadius: 30,
+    resizeMode: "contain",
   },
   icones: {
     position: "absolute",

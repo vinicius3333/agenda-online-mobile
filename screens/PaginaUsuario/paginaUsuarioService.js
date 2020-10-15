@@ -19,6 +19,11 @@ class CadastroClienteService {
   getListaDiasAgendadosService(idUsuario) {
     return axios.get(`agenda/ListaDiasAgendados/${idUsuario}`);
   }
+  getHorariosDisponiveis(empresa, data) {
+    return axios.get(
+      `agenda/HorariosDisponiveis?empresa=${empresa}&data=${data}`
+    );
+  }
 }
 
 export default new CadastroClienteService();

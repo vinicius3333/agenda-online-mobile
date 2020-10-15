@@ -50,6 +50,7 @@ export default function App() {
   let [token, setToken] = React.useState("");
   let [role, setRole] = React.useState("");
   let [idUsuario, setIdUsuario] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
   const getToken = async () => {
     try {
@@ -58,13 +59,13 @@ export default function App() {
         const infoToken = jwt_decode(value);
         let res = await usuarioService.getUsuario(infoToken.UserId);
         if (res.data === "user not found") {
-          setToken(null);
           await AsyncStorage.removeItem("@tokenBeaer");
+          setToken(null);
           return;
         }
-        setToken(value);
         setRole(infoToken.role);
         setIdUsuario(infoToken.UserId);
+        setToken(value);
         return;
       }
       setToken(null);
@@ -96,8 +97,8 @@ export default function App() {
             headerTitleAlign: "left",
           }}
         >
-          <Stack.Screen name="Prestadores de serviço" component={HomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Prestadores de serviço" component={HomeScreen} />
           <Stack.Screen
             name="Cadastro Prestador"
             options={() => ({

@@ -1,12 +1,10 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
   Modal,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  ScrollView,
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import theme from "../themes/baseTheme";

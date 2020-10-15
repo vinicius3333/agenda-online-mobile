@@ -35,7 +35,8 @@ export default function App({ navigation, logar }) {
 
   const { control, handleSubmit, errors } = useForm({
     resolver: yupResolver(schema),
-    mode: "all",
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
 
   async function salvarToken(token) {
