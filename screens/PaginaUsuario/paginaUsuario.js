@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
 import { ModalLoading, ModalErro } from "../../shared/componentes/index";
 import { Colors, IconButton } from "react-native-paper";
 import PaginaUsuarioService from "./paginaUsuarioService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
+import { ModalAgendamento } from './ModalAgendamento'
+
 
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function App({ idUsuario, mostrando }) {
+  const [mostrarAgendamento, setMostrarAgendamento] = React.useState(false)
   const [loading, setLoading] = React.useState(false);
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -147,16 +150,18 @@ export default function App({ idUsuario, mostrando }) {
     if (!agendas || !agendas) {
       return agendas;
     }
-    var b = new Date(data.toString());
-    let dataFormatada =
-      b.getDate() + "/" + (b.getMonth() + 1) + "/" + b.getFullYear();
-    var novaData = new Date(dataFormatada);
-    return agendas.filter(function (age) {
+    var parts = data.split('/');
+    var mydate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0])); 
+    var dataConvertida = new Date(mydate.toDateString());
+
+    return agendas.filter(function(age){
       let dataAge = new Date(age.dataHora.toString());
 
-      return dataAge.getDate() == novaData.getDate();
-    });
+      return dataAge.getDate() == dataConvertida.getDate();
+    })
   }
+
+
 
   function _renderItem({ item, index }, parallaxProps) {
     return (
@@ -211,7 +216,7 @@ export default function App({ idUsuario, mostrando }) {
           style={{ alignSelf: "flex-end" }}
           icon="calendar"
           size={40}
-          onPress={() => console.log("agendar")}
+          onPress={() => setMostrarAgendamento(true)}
           color={theme.colors.header}
         />
         {listaDias.map((prop, key) => {
@@ -240,6 +245,10 @@ export default function App({ idUsuario, mostrando }) {
           );
         })}
       </ScrollView>
+      <ModalAgendamento
+        visible={mostrarAgendamento}
+        onClose={() => setMostrarAgendamento(false)}
+      />
       <ModalLoading loading={loading} />
       <ModalErro
         visible={mostrarModalErro}

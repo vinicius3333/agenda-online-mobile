@@ -8,7 +8,7 @@ const ModalLoading = (props) => {
     <Modal visible={loading} transparent={true} animationType={"none"}>
       <View style={styles.modalBackground}>
         <View style={styles.activityIndicatorWrapper}>
-          <ActivityIndicator animating={loading} />
+          <ActivityIndicator animating={loading} color="red"/>
         </View>
       </View>
     </Modal>

@@ -9,5 +9,5 @@ export {
   ModalSucesso,
   DatePickerComponent,
   ModalErro,
-  MenuHeader,
+  MenuHeader
 };
