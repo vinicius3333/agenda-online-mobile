@@ -47,6 +47,14 @@ export default function App({ navigation, logar }) {
     }
   }
 
+  async function salvarUserName (userName) {
+    try {
+      await AsyncStorage.setItem("@userName", userName);
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const onSubmit = (data) => {
     const { Usuario, Senha } = data;
 
@@ -54,6 +62,8 @@ export default function App({ navigation, logar }) {
       UserName: Usuario,
       Password: Senha,
     };
+
+    salvarUserName(Usuario)
 
     setLoading(true);
 
@@ -117,7 +127,6 @@ export default function App({ navigation, logar }) {
         mode="contained"
         onPress={handleSubmit(onSubmit)}
         contentStyle={styles.button}
-        style={{ marginTop: 4 }}
         labelStyle={{ color: "white" }}
       >
         ENTRAR

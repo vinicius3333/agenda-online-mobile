@@ -24,14 +24,20 @@ class CadastroClienteService {
       `agenda/HorariosDisponiveis?empresa=${empresa}&data=${data}`
     );
   }
+  getInfoUsuarioService (userName) {
+    return axios.get(`agenda/ObterUsuario?UserName=${userName}`)
+  }
   getCidadeFiltro (cidade = null, segmento = null) {
     return axios.get(`agenda/BuscarCidades?text=${cidade}&segmento=${segmento}`)
   }
   getSegmentoFiltro (cidade = null, segmento = null) {
-    return axios.get(`BuscarSegmentos?text=${segmento}&cidade=${cidade}`)
+    return axios.get(`agenda/BuscarSegmentos?text=${segmento}&cidade=${cidade}`)
   }
   getEmpresaFiltro (cidade = null, segmento = null, empresa = null) {
-    return axios.get(`BuscarEmpresas?text=${empresa}&segmento=${segmento}&cidade=${cidade}`)
+    return axios.get(`agenda/BuscarEmpresas?text=${empresa}&segmento=${segmento}&cidade=${cidade}`)
+  }
+  postAgendarCliente (data) {
+    return axios.post('agenda/AgendarCliente', data)
   }
 }
 

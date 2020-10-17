@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
-import { ModalLoading, ModalErro } from "../../shared/componentes/index";
+import { ModalLoading, ModalErro, ModalSucesso } from "../../shared/componentes/index";
 import { Colors, IconButton } from "react-native-paper";
 import PaginaUsuarioService from "./paginaUsuarioService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
@@ -10,7 +10,7 @@ import { ModalAgendamento } from './ModalAgendamento'
 
 const { width: screenWidth } = Dimensions.get("window");
 
-export default function App({ idUsuario, mostrando }) {
+export default function App({ idUsuario, userName }) {
   const [mostrarAgendamento, setMostrarAgendamento] = React.useState(false)
   const [loading, setLoading] = React.useState(false);
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
@@ -21,6 +21,8 @@ export default function App({ idUsuario, mostrando }) {
   const [imagem, setImagem] = React.useState("");
   const [listaAgendamentos, setListaAgendamentos] = React.useState([]);
   const [listaDias, setListaDias] = React.useState([]);
+  const [infoUsuario, setInfoUsuario] = React.useState({})
+  const [sucesso, setSucesso] = React.useState(false)
 
   const [carouselComponente, setCarouselComponente] = React.useState(null);
   const [carousel, setCarousel] = React.useState({
@@ -112,6 +114,10 @@ export default function App({ idUsuario, mostrando }) {
       PaginaUsuarioService.getListaDiasAgendadosService(idUsuario)
         .then((res) => {
           if (!isCancelled) {
+            if (res.data === 'vazio') {
+              setListaDias([])
+              return
+            }
             setListaDias(res.data);
           }
         })
@@ -120,10 +126,22 @@ export default function App({ idUsuario, mostrando }) {
     });
   }
 
-  React.useEffect(() => {
-    let isCancelled = false;
-    async function onInit() {
-      setLoading(true);
+  function getInfoUsuario (isCancelled) {
+    return new Promise((resolve) => {
+      PaginaUsuarioService.getInfoUsuarioService(userName)
+        .then((res) => {
+          if (!isCancelled) {
+            setInfoUsuario(res.data)
+          }
+        })
+        .catch((err) => handlerError(err))
+        .finally(() => resolve());
+    })
+  }
+
+  async function onInit(isCancelled) {
+    setLoading(true);
+    getInfoUsuario(isCancelled).finally(() => {
       getListaAdm(isCancelled).finally(() => {
           getImagemPerfil(isCancelled).finally(() => {
             delMotorRemocao().finally(() => {
@@ -137,9 +155,14 @@ export default function App({ idUsuario, mostrando }) {
             });
           });
       });
-    }
+    })
+  }
+
+  React.useEffect(() => {
+    let isCancelled = false;
+
     if (!isCancelled) {
-      onInit();
+      onInit(isCancelled);
     }
     return () => {
       isCancelled = true;
@@ -209,6 +232,10 @@ export default function App({ idUsuario, mostrando }) {
     );
   }
 
+  const changeLoading = (bool) => {
+    setLoading(bool)
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -248,6 +275,12 @@ export default function App({ idUsuario, mostrando }) {
       <ModalAgendamento
         visible={mostrarAgendamento}
         onClose={() => setMostrarAgendamento(false)}
+        onError={(err) => handlerError(err)}
+        onLoading={(bool) => changeLoading(bool)}
+        onSuccess={() => setSucesso(true)}
+        idUsuario={idUsuario}
+        listaAdm={listaAdm}
+        infoUsuario={infoUsuario}
       />
       <ModalLoading loading={loading} />
       <ModalErro
@@ -255,6 +288,17 @@ export default function App({ idUsuario, mostrando }) {
         error={error}
         status={status}
         onClose={() => setMostrarModalErro(false)}
+      />
+      <ModalSucesso
+        visible={sucesso}
+        titulo="Sucesso!"
+        subtitulo="Agendamento cadastrado com sucesso!"
+        onClose={() => {
+          setSucesso(false);
+          setTimeout(() => {
+            onInit();
+          }, 100);
+        }}
       />
     </View>
   );

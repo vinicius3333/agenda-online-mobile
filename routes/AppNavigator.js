@@ -38,7 +38,7 @@ export default function App() {
   }
 
   function PaginaUsuarioScreen() {
-    return <PaginaUsuario idUsuario={idUsuario} mostrando={role === "User"} />;
+    return <PaginaUsuario idUsuario={idUsuario} mostrando={role === "User"} userName={userNameState} />;
   }
 
   function LoadingScreen() {
@@ -51,10 +51,17 @@ export default function App() {
   let [role, setRole] = React.useState("");
   let [idUsuario, setIdUsuario] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [userNameState, setUserNameState] = React.useState("")
 
   const getToken = async () => {
     try {
       const value = await AsyncStorage.getItem("@tokenBeaer");
+      const userName = await AsyncStorage.getItem("@userName");
+      if ([null, undefined, ""].includes(userName)) {
+        setUserNameState("")
+        setToken(null)
+        return
+      }
       if (value !== null) {
         const infoToken = jwt_decode(value);
         let res = await usuarioService.getUsuario(infoToken.UserId);
@@ -63,6 +70,7 @@ export default function App() {
           setToken(null);
           return;
         }
+        setUserNameState(userName)
         setRole(infoToken.role);
         setIdUsuario(infoToken.UserId);
         setToken(value);

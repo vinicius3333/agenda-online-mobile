@@ -15,7 +15,8 @@ import {
 } from 'react-native'
 import SectionedMultiSelect from 'react-native-sectioned-multi-select'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-
+import color from 'color'
+import theme from '../themes/baseTheme'
 
 // Sorry for the mess
 
@@ -37,13 +38,12 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingTop: 8,
-    paddingHorizontal: 8
+    paddingHorizontal: 0,
   },
   welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-    color: '#333'
+    fontSize: 16,
+    color: '#333',
+    paddingBottom: 4
   },
   border: {
     borderBottomWidth: 20,
@@ -221,6 +221,7 @@ export default class App extends Component {
   }
   onSelectedItemObjectsChange = selectedItemObjects => {
     this.setState({ selectedItemObjects })
+    this.props.onChangeItem(selectedItemObjects[0].title)
   }
 
   noResults = (
@@ -248,7 +249,7 @@ export default class App extends Component {
   searchAdornment = searchTerm =>
     searchTerm.length ? (
       <TouchableOpacity
-        style={{ alignItems: 'center', justifyContent: 'center' }}
+        style={{ alignItems: 'flex-start', justifyContent: 'center' }}
         onPress={this.handleAddSearchTerm}>
         <View style={{}}>
           <Image
@@ -266,14 +267,13 @@ export default class App extends Component {
     const selectText = selectedItemObjects.length
       ? `${selectedItemObjects
           .map((item, i) => {
-            console.log(item)
             let label = `${item.title}`
             if (i === selectedItemObjects.length - 1) label = `${item.title}`
             return label
           })
           .join('')}`
       : this.props.placeholder
-    return <Text style={{  fontSize: 18, minWidth: 160 }}>{selectText}</Text>
+    return <Text style={{  fontSize: 16, width: 200, padding: 8 }}>{selectText}</Text>
   }
 
   render() {
@@ -329,7 +329,7 @@ export default class App extends Component {
           onConfirm={this.onConfirm}
           confirmText='Confirmar'
           selectedItems={this.state.selectedItems}
-          colors={{ primary: '#5c3a9e', success: '#5c3a9e' }}
+          colors={{ primary: '#5c3a9e', success: '#5c3a9e', searchPlaceholderTextColor: theme.colors.placeholder }}
           itemNumberOfLines={3}
           selectLabelNumberOfLines={3}
           styles={{
@@ -361,7 +361,7 @@ export default class App extends Component {
             //   color: 'blue',
             // },
             scrollView: { paddingHorizontal: 0 },
-            selectToggle: {borderColor: '#dadada', borderWidth: 2, borderRadius: 2, padding: 4}
+            selectToggle: {borderColor: color('#000000').alpha(0.54).rgb().string(), borderWidth: 1, borderRadius: 2, paddingHorizontal: 4, paddingVertical: 2}
           }}
         />
         {/* <View>
