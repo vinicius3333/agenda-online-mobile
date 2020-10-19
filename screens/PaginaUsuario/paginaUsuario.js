@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
+import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { ModalLoading, ModalErro, ModalSucesso } from "../../shared/componentes/index";
 import { Colors, IconButton } from "react-native-paper";
 import PaginaUsuarioService from "./paginaUsuarioService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
 import { ModalAgendamento } from './ModalAgendamento'
+import { ModalInfoAgendamento } from './ModalInfoAgendamento'
+import moment from 'moment'
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -22,6 +24,8 @@ export default function App({ idUsuario, userName }) {
   const [listaDias, setListaDias] = React.useState([]);
   const [infoUsuario, setInfoUsuario] = React.useState({})
   const [sucesso, setSucesso] = React.useState(false)
+  const [mostrarModalInfo, setMostrarModalInfo] = React.useState(false)
+  const [objInfo, setObjInfo] = React.useState({})
 
   const [carouselComponente, setCarouselComponente] = React.useState(null);
   const [carousel, setCarousel] = React.useState({
@@ -174,47 +178,57 @@ export default function App({ idUsuario, userName }) {
 
   function _renderItem({ item, index }, parallaxProps) {
     return (
+      <TouchableOpacity onPress={() => {
+        const { empresa, endereco, celularAdm, dataHora, duracao, observacao } = item
+        let momentObj = moment(dataHora, 'YYYY-MM-DDTHH:mm:ss');
+        let dateTime = momentObj.format('DD/MM/YYYY HH:mm');
+        let obj = { empresa, endereco, celularAdm, dataHora: dateTime, duracao, observacao }
+        setObjInfo(obj)
+        setMostrarModalInfo(true)
+      }}>
       <View
         style={{
           height: 160,
           width: screenWidth - 60,
         }}
       >
-        {item.imagemPerfilPrestador.length === 0 ? (
-          <ParallaxImage
-            source={require("../../shared/assets/imagens/imgPerfil.jpg")}
-            containerStyle={styles.imageContainer}
-            style={styles.image}
-            parallaxFactor={0.4}
-            {...parallaxProps}
-          />
-        ) : (
-          <ParallaxImage
-            source={{
-              uri: `${item.imagemPerfilPrestador}`,
-            }}
-            containerStyle={styles.imageContainer}
-            style={styles.image}
-            dimensions={{ width: 50, height: 50 }}
-            parallaxFactor={0.4}
-            {...parallaxProps}
-          />
-        )}
+          {item.imagemPerfilPrestador.length === 0 ? (
+            <ParallaxImage
+              source={require("../../shared/assets/imagens/imgPerfil.jpg")}
+              containerStyle={styles.imageContainer}
+              style={styles.image}
+              parallaxFactor={0.4}
+              {...parallaxProps}
+            />
+          ) : (
+            <ParallaxImage
+              source={{
+                uri: `${item.imagemPerfilPrestador}`,
+              }}
+              containerStyle={styles.imageContainer}
+              style={styles.image}
+              dimensions={{ width: 50, height: 50 }}
+              parallaxFactor={0.4}
+              {...parallaxProps}
+            />
+          )}
+
         <View style={styles.icones}>
           <IconButton
             icon="square-edit-outline"
             size={20}
             color={theme.colors.success}
             onPress={() => console.log("Pressed")}
-          />
+            />
           <IconButton
             icon="delete-outline"
             size={20}
             color={theme.colors.error}
             onPress={() => console.log("Pressed 2")}
-          />
+            />
         </View>
       </View>
+      </TouchableOpacity>
     );
   }
 
@@ -246,12 +260,6 @@ export default function App({ idUsuario, userName }) {
                   lockScrollWhileSnapping={true}
                   ref={(ref) => setCarouselComponente(ref)}
                   renderItem={_renderItem}
-                  onSnapToItem={(index) =>
-                    setCarousel({
-                      activeIndex: index,
-                      carouselItems: carousel.carouselItems,
-                    })
-                  }
                 />
               }
             </View>
@@ -267,6 +275,11 @@ export default function App({ idUsuario, userName }) {
         idUsuario={idUsuario}
         listaAdm={listaAdm}
         infoUsuario={infoUsuario}
+      />
+      <ModalInfoAgendamento
+        visible={mostrarModalInfo}
+        onClose={() => setMostrarModalInfo(false)}
+        objetoAdm={objInfo}
       />
       <ModalLoading loading={loading} />
       <ModalErro
