@@ -10,13 +10,14 @@ import PaginaAdm from "../screens/PaginaAdm/paginaAdm";
 import PaginaUsuario from "../screens/PaginaUsuario/paginaUsuario";
 import Loading from "../screens/loading";
 
-import { MenuHeader } from "../shared/componentes/index";
+import { MenuHeader, ModalLoading } from "../shared/componentes/index";
 
 import jwt_decode from "jwt-decode";
 import AsyncStorage from "@react-native-community/async-storage";
 import usuarioService from "../shared/service/usuarioService";
+import ImagePicker from 'react-native-image-picker';
 
-export default function App() {
+export default function App(props) {
   function HomeScreen({ navigation }) {
     return <Home navigation={navigation} />;
   }
@@ -50,7 +51,7 @@ export default function App() {
   let [token, setToken] = React.useState("");
   let [role, setRole] = React.useState("");
   let [idUsuario, setIdUsuario] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
+  const [uriImagem, setUriImagem] = React.useState(null)
   const [userNameState, setUserNameState] = React.useState("")
 
   const getToken = async () => {
@@ -73,14 +74,57 @@ export default function App() {
         setUserNameState(userName)
         setRole(infoToken.role);
         setIdUsuario(infoToken.UserId);
-        setToken(value);
+        getImagemPerfil(infoToken.UserId)
+          .finally(() => {
+            setToken(value);
+          })
         return;
       }
       setToken(null);
     } catch (e) {
-      console.log(e);
+      console.log(e)
+      setUserNameState("")
+      setToken(null);
+      return;
     }
   };
+
+  const imagePicker = () => {
+    ImagePicker.showImagePicker((response) => {
+    
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const formData = new FormData()
+        formData.append('file', {type: "image/jpeg", name: response.fileName, uri: response.uri })
+        formData.append('idUser', idUsuario)
+        props.onChangeLoading(true)
+        usuarioService.postUploadImagemPerfil(formData)
+          .then(() => {
+            props.onSucesso('Upload feito com sucesso!')
+          })
+          .catch((err) => {
+            console.log(err.response)
+          })
+          .finally(() => {
+            props.onChangeLoading(false)
+          })          
+      }
+    });    
+  }
+
+  function getImagemPerfil(idUsuario) {
+    return new Promise((resolve) => {
+      usuarioService.getImagemPerfilService(idUsuario)
+        .then((res) => {
+          setUriImagem('data:image/jpeg;base64,' + res.data)
+        })
+        .catch((err) => console.log(err.response))
+        .finally(() => resolve());
+    });
+  }
 
   setTimeout(() => {
     getToken();
@@ -135,7 +179,10 @@ export default function App() {
             headerTitleAlign: "left",
             headerRight: () => (
               <MenuHeader
-                trocarImagem={() => console.log("trocando")}
+                uri={uriImagem}
+                trocarImagem={() => {
+                  imagePicker()
+                }}
                 editarPerfil={() => console.log("editarPerfil")}
                 sair={async () => {
                   await AsyncStorage.removeItem("@tokenBeaer");

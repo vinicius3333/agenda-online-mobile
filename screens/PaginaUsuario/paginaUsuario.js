@@ -7,7 +7,6 @@ import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
 import { ModalAgendamento } from './ModalAgendamento'
 
-
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function App({ idUsuario, userName }) {
@@ -75,18 +74,7 @@ export default function App({ idUsuario, userName }) {
     });
   }
 
-  function getImagemPerfil(isCancelled) {
-    return new Promise((resolve) => {
-      PaginaUsuarioService.getImagemPerfilService(idUsuario)
-        .then((res) => {
-          if (!isCancelled) {
-            setImagem(res.data);
-          }
-        })
-        .catch((err) => handlerError(err))
-        .finally(() => resolve());
-    });
-  }
+
 
   function delMotorRemocao() {
     return new Promise((resolve) => {
@@ -143,7 +131,6 @@ export default function App({ idUsuario, userName }) {
     setLoading(true);
     getInfoUsuario(isCancelled).finally(() => {
       getListaAdm(isCancelled).finally(() => {
-          getImagemPerfil(isCancelled).finally(() => {
             delMotorRemocao().finally(() => {
               getListaAgendamentos(isCancelled).finally(() => {
                 getListaDiasAgendados(isCancelled).finally(() => {
@@ -152,7 +139,6 @@ export default function App({ idUsuario, userName }) {
                   }
                 });
               });
-            });
           });
       });
     })

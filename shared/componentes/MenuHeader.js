@@ -1,4 +1,5 @@
 import React from "react";
+import { Image } from "react-native";
 import { Avatar, TouchableRipple, Menu } from "react-native-paper";
 
 const MenuHeader = (props) => {
@@ -7,6 +8,8 @@ const MenuHeader = (props) => {
   const openMenu = () => setVisible(true);
 
   const closeMenu = () => setVisible(false);
+
+  
 
   return (
     <Menu
@@ -19,10 +22,15 @@ const MenuHeader = (props) => {
           style={{ marginRight: 8, borderRadius: 50 }}
           onPress={() => openMenu()}
         >
+          { props.uri ? 
           <Avatar.Image
             size={36}
-            source={require("../assets/imagens/imgPerfil.jpg")}
-          />
+            source={{uri: props.uri}}
+          /> : 
+          <Avatar.Image
+            size={36}
+            source={ require("../assets/imagens/imgPerfil.jpg")}
+          />}
         </TouchableRipple>
       }
     >
