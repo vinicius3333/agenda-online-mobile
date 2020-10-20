@@ -104,6 +104,7 @@ export default function App(props) {
         usuarioService.postUploadImagemPerfil(formData)
           .then(() => {
             props.onSucesso('Upload feito com sucesso!')
+            setUriImagem('data:image/jpeg;base64,' + response.data)
           })
           .catch((err) => {
             console.log(err.response)

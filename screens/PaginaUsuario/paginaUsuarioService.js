@@ -39,6 +39,12 @@ class CadastroClienteService {
   postAgendarCliente (data) {
     return axios.post('agenda/AgendarCliente', data)
   }
+  putEditarAgendamento (data) {
+    return axios.put('agenda/AtualizarAgenda/', data)
+  }
+  delAgendamento (id) {
+    return axios.delete('agenda/' + id)
+  }
 }
 
 export default new CadastroClienteService();

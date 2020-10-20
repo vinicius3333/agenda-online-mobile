@@ -37,12 +37,14 @@ const MenuHeader = (props) => {
       <Menu.Item
         onPress={() => {
           props.trocarImagem();
+          closeMenu()
         }}
         title="Trocar imagem"
       />
       <Menu.Item
         onPress={() => {
           props.editarPerfil();
+          closeMenu()
         }}
         title="Editar perfil"
       />

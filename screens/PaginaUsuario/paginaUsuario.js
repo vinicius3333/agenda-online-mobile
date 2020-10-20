@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity } from "react-native";
-import { ModalLoading, ModalErro, ModalSucesso } from "../../shared/componentes/index";
+import { ModalLoading, ModalErro, ModalSucesso, ModalConfirmar } from "../../shared/componentes/index";
 import { Colors, IconButton } from "react-native-paper";
 import PaginaUsuarioService from "./paginaUsuarioService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
@@ -26,34 +26,16 @@ export default function App({ idUsuario, userName }) {
   const [sucesso, setSucesso] = React.useState(false)
   const [mostrarModalInfo, setMostrarModalInfo] = React.useState(false)
   const [objInfo, setObjInfo] = React.useState({})
+  const [acaoModal, setAcaoModal] = React.useState('add')
+  const [mostrarModalConfirmar, setMostrarModalConfirmar] = React.useState(false)
+  const [objetoExcluir, setObjetoExcluir] = React.useState({
+    id: null,
+    empresa: ''
+  })
+  const [subtituloSucesso, setSubtituloSucesso] = React.useState("Agendamento cadastrado com sucesso!")
 
   const [carouselComponente, setCarouselComponente] = React.useState(null);
-  const [carousel, setCarousel] = React.useState({
-    activeIndex: 0,
-    carouselItems: [
-      {
-        title: "Item 1",
-        text: "Text 1",
-      },
-      {
-        title: "Item 2",
-        text: "Text 2",
-      },
-      {
-        title: "Item 3",
-        text: "Text 3",
-      },
-      {
-        title: "Item 4",
-        text: "Text 4",
-      },
-      {
-        title: "Item 5",
-        text: "Text 5",
-      },
-    ],
-  });
-
+  
   function handlerError(error) {
     if (error.response) {
       setStatus(error.response.status);
@@ -129,6 +111,21 @@ export default function App({ idUsuario, userName }) {
         .catch((err) => handlerError(err))
         .finally(() => resolve());
     })
+  }
+
+  function excluirAgendamento () {
+    setLoading(true)
+    PaginaUsuarioService.delAgendamento(objetoExcluir.id)
+      .then(() => {
+        setSubtituloSucesso("Agendamento excluido com sucesso!")
+        setSucesso(true)
+      })
+      .catch((err) => {
+        handlerError(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   async function onInit(isCancelled) {
@@ -218,13 +215,18 @@ export default function App({ idUsuario, userName }) {
             icon="square-edit-outline"
             size={20}
             color={theme.colors.success}
-            onPress={() => console.log("Pressed")}
+            onPress={() => {
+              setAcaoModal('edit')
+            }}
             />
           <IconButton
             icon="delete-outline"
             size={20}
             color={theme.colors.error}
-            onPress={() => console.log("Pressed 2")}
+            onPress={() => {
+              setObjetoExcluir({ empresa: item.empresa, id: item.id })
+              setMostrarModalConfirmar(true)
+            }}
             />
         </View>
       </View>
@@ -243,7 +245,11 @@ export default function App({ idUsuario, userName }) {
           style={{ alignSelf: "flex-end" }}
           icon="calendar"
           size={40}
-          onPress={() => setMostrarAgendamento(true)}
+          onPress={() => {
+            setAcaoModal('add')
+            setSubtituloSucesso("Agendamento cadastrado com sucesso!")
+            setMostrarAgendamento(true)
+          }}
           color={theme.colors.header}
         />
         {listaDias.map((prop, key) => {
@@ -281,7 +287,6 @@ export default function App({ idUsuario, userName }) {
         onClose={() => setMostrarModalInfo(false)}
         objetoAdm={objInfo}
       />
-      <ModalLoading loading={loading} />
       <ModalErro
         visible={mostrarModalErro}
         error={error}
@@ -291,7 +296,7 @@ export default function App({ idUsuario, userName }) {
       <ModalSucesso
         visible={sucesso}
         titulo="Sucesso!"
-        subtitulo="Agendamento cadastrado com sucesso!"
+        subtitulo={subtituloSucesso}
         onClose={() => {
           setSucesso(false);
           setTimeout(() => {
@@ -299,6 +304,16 @@ export default function App({ idUsuario, userName }) {
           }, 100);
         }}
       />
+      <ModalConfirmar
+        visible={mostrarModalConfirmar}
+        onClose={() => setMostrarModalConfirmar(false)}
+        empresa={objetoExcluir.empresa}
+        excluir={() => {
+          setMostrarModalConfirmar(false)
+          excluirAgendamento()
+        }}
+      />
+      <ModalLoading loading={loading} />
     </View>
   );
 }
