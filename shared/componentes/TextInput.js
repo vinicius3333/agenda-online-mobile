@@ -46,7 +46,7 @@ const TextInputComponent = (props) => {
         }
         {...props}
         dense
-        style={{ marginBottom: 8, marginTop: 0, paddingTop: 0 }}
+        style={{ marginBottom: 0, marginTop: 0, paddingTop: 0 }}
         mode="outlined"
         theme={{colors: { primary: "#007bff", background: "white" }}}
         onFocus={() => {

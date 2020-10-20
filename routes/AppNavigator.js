@@ -53,6 +53,8 @@ export default function App(props) {
   let [idUsuario, setIdUsuario] = React.useState("");
   const [uriImagem, setUriImagem] = React.useState(null)
   const [userNameState, setUserNameState] = React.useState("")
+  const [iniciado, setIniciado] = React.useState(false)
+  const [loading, setLoading] =  React.useState(false)
 
   const getToken = async () => {
     try {
@@ -100,18 +102,14 @@ export default function App(props) {
         const formData = new FormData()
         formData.append('file', {type: "image/jpeg", name: response.fileName, uri: response.uri })
         formData.append('idUser', idUsuario)
-        props.onChangeLoading(true)
         usuarioService.postUploadImagemPerfil(formData)
           .then(() => {
-            props.onSucesso('Upload feito com sucesso!')
+            //props.onSucesso('Upload feito com sucesso!')
             setUriImagem('data:image/jpeg;base64,' + response.data)
           })
           .catch((err) => {
             console.log(err.response)
           })
-          .finally(() => {
-            props.onChangeLoading(false)
-          })          
       }
     });    
   }
@@ -127,9 +125,14 @@ export default function App(props) {
     });
   }
 
-  setTimeout(() => {
-    getToken();
-  }, 1000);
+  React.useEffect(() => {
+    if (iniciado) return
+    setIniciado(true)
+    setTimeout(() => {
+      console.log('oi')
+      getToken();
+    }, 1000);
+  }, [])
 
   if (token === "") {
     return <LoadingScreen />;

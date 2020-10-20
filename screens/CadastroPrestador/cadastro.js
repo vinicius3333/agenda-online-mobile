@@ -22,6 +22,7 @@ import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
 import Geolocation from "@react-native-community/geolocation";
 import axios from "axios";
+import TextInputMask from "react-native-text-input-mask";
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -376,6 +377,9 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Duração do serviço"
                 maxLength={5}
+                render={(props) => (
+                  <TextInputMask {...props} mask="[00]:[00]" />
+                )}
               />
             )}
             name="duracaoServico"

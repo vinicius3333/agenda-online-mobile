@@ -16,6 +16,7 @@ import TextInput from '../../shared/componentes/TextInput'
 import moment from 'moment'
 import paginaUsuarioService from "./paginaUsuarioService";
 import Select from '../../shared/componentes/Select'
+import TextInputMask from "react-native-text-input-mask";
 
 const today = moment();
 
@@ -45,7 +46,8 @@ const ModalAgendamento = (props) => {
   const [itemsHorario, setListaHorarios] = React.useState([])
   const [admObjState, setAdmObjState] = React.useState({})
   const [horario, setHorario] = React.useState("")
-
+  const [estipularHorario, setEstipularHorario] = React.useState(false)
+  const [valorEstipulado, setValorEstipulado] = React.useState("")
 
   const pesquisarCidade = (texto) => {
     setCidade(texto)
@@ -132,7 +134,17 @@ const ModalAgendamento = (props) => {
     props.onLoading(true)
     paginaUsuarioService.getHorariosDisponiveis(empresa, dateValue)
       .then((res) => {
-        if (res.data[0] === '00:00:00') {
+        switch (res.data) {
+          case 'indisponível':
+          props.onError({ message: 'Não há mais Horários disponíveis para este dia', status: 400});
+          return
+          case 'empresainvalida':
+          props.onError({ message: 'Digite uma empresa Válida', status: 400});
+          return
+          case 'diaVencido':
+          props.onError({ message: 'Escolha um dia de hoje em diante', status: 400});
+          return
+          case 'duracaoNaoEstipulada':
           return
         }
         setListaHorarios(res.data.map((e) => {
@@ -151,6 +163,7 @@ const ModalAgendamento = (props) => {
   }
 
   const onSubmit = () => {
+    if (!empresa || !valorData || !(estipularHorario ? valorEstipulado : horario)) return
     props.onLoading(true)
     let momentObj = moment(valorData + horario, 'DD/MM/YYYYHH:mm:s');
     let dateTime = momentObj.format('YYYY-MM-DDTHH:mm:ss:00z');
@@ -169,6 +182,10 @@ const ModalAgendamento = (props) => {
       imagemPerfilCliente: "",
       imagemPerfilPrestador: "",
       observacao: ""
+    }
+
+    if (estipularHorario) {
+      data.duracao = valorEstipulado
     }
 
     paginaUsuarioService.postAgendarCliente(data)
@@ -193,6 +210,8 @@ const ModalAgendamento = (props) => {
     setEmpresa("")
     setSegmento("")
     setCidade("")
+    setEstipularHorario(false)
+    setValorEstipulado('')
     setListaEmpresas([{
       id: 0,
       children: []
@@ -259,8 +278,12 @@ const ModalAgendamento = (props) => {
             onChangeItem={(empresa) => {
               let admObj = listaAdm.filter((el) => el.company == empresa)[0]
               setAdmObjState(admObj)
-              const { fds } = admObj
+              const { fds, duracao } = admObj
               setDatasBloqueadas([])
+
+              if (duracao === '00:00:00') {
+                setEstipularHorario(true)
+              }
 
               if (fds === 3) {
                 setDatasBloqueadas([0,6]);
@@ -295,12 +318,24 @@ const ModalAgendamento = (props) => {
               horariosDisponiveis(dateValue, empresa)
             }}
           />
-          <Select
-            onValueChange={(value) => setHorario(value)}
-            disabled={itemsHorario.length === 0}
-            items={itemsHorario}
-            placeholder="Selecione um horário"
-          />
+            {
+              estipularHorario ? 
+              <TextInput
+                style={{paddingTop: 0}}
+                label="Duração do Serviço"
+                value={valorEstipulado}
+                onChangeText={(value) => setValorEstipulado(value)}
+                render={(props) => (
+                  <TextInputMask {...props} mask="[00]:[00]" />
+                )}
+              /> :
+              <Select
+                onValueChange={(value) => setHorario(value)}
+                disabled={itemsHorario.length === 0}
+                items={itemsHorario}
+                placeholder="Selecione um horário"
+              />
+            }
           <Button
             mode="contained"
             onPress={onSubmit}

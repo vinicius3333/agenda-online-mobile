@@ -33,8 +33,8 @@ const ModalErro = (props) => {
           />
         </View>
         <Text style={styles.titulo}>Oops, algo deu errado!</Text>
-        <Text style={styles.subtitulo}>{error}</Text>
-        <Text style={styles.subtitulo}>{status}</Text>
+        <Text style={styles.subtituloError}>{error}</Text>
+        <Text style={styles.subtitulo}>Status: {status}</Text>
       </View>
     </Modal>
   );
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "#FFFFFF",
-    height: 150,
+    height: 190,
     width: 300,
     borderRadius: 10,
     justifyContent: "center",
@@ -71,8 +71,13 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 24,
   },
+  subtituloError: {
+    fontSize: 14,
+    paddingHorizontal: 16
+  },
   subtitulo: {
     fontSize: 14,
+    paddingBottom: 16
   },
   iconeSucesso: {
     paddingTop: 24,
