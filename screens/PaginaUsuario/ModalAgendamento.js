@@ -49,6 +49,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
   const [estipularHorario, setEstipularHorario] = React.useState(false)
   const [valorEstipulado, setValorEstipulado] = React.useState("")
   const [idAgendamento, setIdAgendamento] = React.useState(null)
+  const [valueTimer, setValueTimer] = React.useState(new Date())
 
   const pesquisarCidade = (texto) => {
     setCidade(texto)
@@ -230,7 +231,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
 
   function atualizarAgendamento (data) {
     paginaUsuarioService.putEditarAgendamento(data)
-    .then(() => {
+    .then((res) => {
       if (res.status === 200) {
         handlerErroAgendamento(res.data)
       }
@@ -298,6 +299,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
       setEstipularHorario(horarioEstipulado)
       if (horarioEstipulado) {
         setValorEstipulado(duracao)
+        setHorario(timeValue)
       } else {
         horariosDisponiveis(dateValue, empresa)
           .then((listaHorarios) => {
@@ -316,7 +318,6 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     const { fds, duracao } = admObj
     setDatasBloqueadas([])
 
-    console.log(duracao)
     if (duracao === '00:00:00') {
       setEstipularHorario(true)
     }
@@ -413,6 +414,8 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
                 onChangeText={(value) => setHorario(value)}
                 mostrarCalendario={true}
                 mode="time"
+                valueTimer={valueTimer}
+                maxLength={5}
                 onChangeTimer={(date) => {
                   const dataValue = new Date(date)
                     .toTimeString()

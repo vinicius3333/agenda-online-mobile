@@ -22,6 +22,7 @@ const TextInputComponent = (props) => {
       <DatePickerComponent
         mode='time'
         show={showTimer}
+        value={props.valueTimer || new Date()}
         onChange={(date = new Date(), event) => {
           if (event.type === "dismissed") {
             setShowTimer(false);
