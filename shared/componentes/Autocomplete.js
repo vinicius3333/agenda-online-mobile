@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 8,
     paddingHorizontal: 0,
+    paddingBottom: 8
   },
   welcome: {
     fontSize: 16,
@@ -221,6 +222,7 @@ export default class App extends Component {
   }
   onSelectedItemObjectsChange = selectedItemObjects => {
     this.setState({ selectedItemObjects })
+    this.props.pesquisarTexto(selectedItemObjects[0].title)
     this.props.onChangeItem(selectedItemObjects[0].title)
   }
 

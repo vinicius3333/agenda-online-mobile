@@ -191,13 +191,12 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
       endereco: "",
       imagemPerfilCliente: "",
       imagemPerfilPrestador: "",
-      observacao
+      observacao: observacao || ''
     }
 
     if (estipularHorario) {
       data.duracao = valorEstipulado
     }
-
     if (acao === 'add') {
       salvarAgendamento(data)
     } else if (acao === 'edit') {
@@ -206,10 +205,35 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     }
   }
 
+  function handlerErroAgendamento (erro) {
+    switch (erro) {
+      case 'valido':
+      props.onError({ message: 'Escolha um horário de Atendimento válido !', status: 400});
+      return
+      case 'dataCerta':
+      props.onError({ message: 'Escolha uma data que ainda não foi agendada !', status: 400});
+      return
+      case 'momento':
+      props.onError({ message: 'Escolha uma data/hora após a deste momento', status: 400});
+      return
+      case 'empresainvalida':
+      props.onError({ message: 'Digite uma empresa Cadastrada', status: 400});
+      return
+      case 'horarioImproprio':
+      props.onError({ message: 'Escolha um Horário de Serviço ou que não seja do almoço', status: 400});
+      return
+      default:
+      props.onError({ message: `Esta Data/Hora foi excluida da Agenda pelo seguinte motivo: ${er.text}`, status: 400});
+      return
+    }
+  }
+
   function atualizarAgendamento (data) {
-    console.log(data)
     paginaUsuarioService.putEditarAgendamento(data)
     .then(() => {
+      if (res.status === 200) {
+        handlerErroAgendamento(res.data)
+      }
       fecharModal()
       props.onSuccess()
     })
@@ -223,7 +247,10 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
 
   function salvarAgendamento (data) {
     paginaUsuarioService.postAgendarCliente(data)
-      .then(() => {
+      .then((res) => {
+        if (res.status === 200) {
+          handlerErroAgendamento(res.data)
+        }
         fecharModal()
         props.onSuccess()
       })
@@ -289,6 +316,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     const { fds, duracao } = admObj
     setDatasBloqueadas([])
 
+    console.log(duracao)
     if (duracao === '00:00:00') {
       setEstipularHorario(true)
     }
@@ -353,7 +381,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
           <Autocomplete
             placeholder="Pesquise uma empresa"
             pesquisarTexto={(texto) => pesquisarEmpresa(texto)}
-            onChangeItem={(empresa) => handlerEmpresa}
+            onChangeItem={(empresa) => handlerEmpresa(empresa)}
             value={empresa}
             items={listaEmpresas}
             loading={LoadingEmpresa}
@@ -376,6 +404,24 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
               horariosDisponiveis(dateValue, empresa)
             }}
           />
+            {
+              estipularHorario && 
+              <TextInput
+                style={{paddingTop: 0}}
+                label="Escreva um horário"
+                value={horario}
+                onChangeText={(value) => setHorario(value)}
+                mostrarCalendario={true}
+                mode="time"
+                onChangeTimer={(date) => {
+                  const dataValue = new Date(date)
+                    .toTimeString()
+                    .split(" ")[0]
+                    .substring(0, 5);
+                  setHorario(dataValue);
+                }}
+              />
+            }
             {
               estipularHorario ? 
               <TextInput

@@ -4,9 +4,6 @@ import { View, Text, StyleSheet } from "react-native";
 import { DatePickerComponent } from "./DatePicker";
 import CalendarPicker from './CalendarPicker';
 import moment from 'moment'
-import color from 'color'
-
-const today = moment();
 
 const TextInputComponent = (props) => {
   const [showTimer, setShowTimer] = React.useState(false);
@@ -46,7 +43,7 @@ const TextInputComponent = (props) => {
         }
         {...props}
         dense
-        style={{ marginBottom: 8, marginTop: 0, paddingTop: 0 }}
+        style={{ marginTop: -6, marginBottom: 8, paddingTop: 0 }}
         mode="outlined"
         theme={{colors: { primary: "#007bff", background: "white" }}}
         onFocus={() => {
