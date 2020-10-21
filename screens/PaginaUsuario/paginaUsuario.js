@@ -33,6 +33,7 @@ export default function App({ idUsuario, userName }) {
     empresa: ''
   })
   const [subtituloSucesso, setSubtituloSucesso] = React.useState("Agendamento cadastrado com sucesso!")
+  const modalAgendamentoRef = React.useRef(null)
 
   const [carouselComponente, setCarouselComponente] = React.useState(null);
   
@@ -217,6 +218,16 @@ export default function App({ idUsuario, userName }) {
             color={theme.colors.success}
             onPress={() => {
               setAcaoModal('edit')
+              const { empresa, dataHora, duracao, id } = item
+              const horarioEstipulado = listaAdm.filter((e) => e.id === item.admId)[0].duracao === '00:00:00'
+
+              let momentObj = moment(dataHora, 'YYYY-MM-DDTHH:mm:ss');
+              let dateValue = momentObj.format('DD/MM/YYYY');
+              let timeValue = momentObj.format('HH:mm:ss')
+
+              let data = { empresa, dateValue, timeValue, duracao, horarioEstipulado, id }
+              setMostrarAgendamento(true)
+              modalAgendamentoRef.current.preencherCampos(data)
             }}
             />
           <IconButton
@@ -277,10 +288,15 @@ export default function App({ idUsuario, userName }) {
         onClose={() => setMostrarAgendamento(false)}
         onError={(err) => handlerError(err)}
         onLoading={(bool) => changeLoading(bool)}
-        onSuccess={() => setSucesso(true)}
+        onSuccess={() => {
+          setSubtituloSucesso(acaoModal === 'add' ? "Agendamento cadastrado com sucesso!" : "Agendamento editado com sucesso!")
+          setSucesso(true)
+        }}
         idUsuario={idUsuario}
         listaAdm={listaAdm}
         infoUsuario={infoUsuario}
+        acao={acaoModal}
+        ref={modalAgendamentoRef}
       />
       <ModalInfoAgendamento
         visible={mostrarModalInfo}

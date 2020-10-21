@@ -36,17 +36,12 @@ export default class App extends React.Component {
         this.inputRefs = {
             select: ''
         };
-
-        this.state = {
-            value: ''
-        };
     }
 
     handlerValueChange (value) {
-        if ([null, '', undefined].includes(value) || this.state.value === value) {
+        if ([null, '', undefined].includes(value) || this.props.value === value) {
             return;
         } else {
-            this.setState({value})
             this.props.onValueChange(value)
         }
     }
@@ -61,7 +56,7 @@ export default class App extends React.Component {
     return (
       <View>
           <RNPickerSelect
-            key={this.state.value}
+            key={this.props.value}
             disabled={this.props.disabled || false}
             placeholder={placeholder}
             items={this.props.items || []}
@@ -71,7 +66,7 @@ export default class App extends React.Component {
             style={{...this.pickerSelectStyles, placeholder: {
                 color: this.props.disabled ? theme.colors.disabled : theme.colors.borderColor
             },}}
-            value={this.state.value}
+            value={this.props.value}
             useNativeAndroidPickerStyle={false}
             ref={el => {
               this.inputRefs.select = el;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useImperativeHandle } from "react";
 import {
   StyleSheet,
   View,
@@ -20,8 +20,8 @@ import TextInputMask from "react-native-text-input-mask";
 
 const today = moment();
 
-const ModalAgendamento = (props) => {
-  const { visible, onClose, listaAdm } = props;
+const ModalAgendamento = React.forwardRef((props, ref) => {
+  const { visible, onClose, listaAdm, acao } = props;
   const [loadingCidade, setLoadingCidade] = React.useState(false)
   const [loadingSegmento, setLoadingSegmento] = React.useState(false)
   const [LoadingEmpresa, setLoadingEmpresa] = React.useState(false)
@@ -48,6 +48,7 @@ const ModalAgendamento = (props) => {
   const [horario, setHorario] = React.useState("")
   const [estipularHorario, setEstipularHorario] = React.useState(false)
   const [valorEstipulado, setValorEstipulado] = React.useState("")
+  const [idAgendamento, setIdAgendamento] = React.useState(null)
 
   const pesquisarCidade = (texto) => {
     setCidade(texto)
@@ -131,43 +132,52 @@ const ModalAgendamento = (props) => {
   }
 
   const horariosDisponiveis = (dateValue, empresa) => {
-    props.onLoading(true)
-    paginaUsuarioService.getHorariosDisponiveis(empresa, dateValue)
-      .then((res) => {
-        switch (res.data) {
-          case 'indisponível':
-          props.onError({ message: 'Não há mais Horários disponíveis para este dia', status: 400});
-          return
-          case 'empresainvalida':
-          props.onError({ message: 'Digite uma empresa Válida', status: 400});
-          return
-          case 'diaVencido':
-          props.onError({ message: 'Escolha um dia de hoje em diante', status: 400});
-          return
-          case 'duracaoNaoEstipulada':
-          return
-        }
-        setListaHorarios(res.data.map((e) => {
-          return {
-            label: e,
-            value: e
+    return new Promise((resolve) => {
+      props.onLoading(true)
+      paginaUsuarioService.getHorariosDisponiveis(empresa, dateValue)
+        .then((res) => {
+          switch (res.data) {
+            case 'indisponível':
+            props.onError({ message: 'Não há mais Horários disponíveis para este dia', status: 400});
+            return
+            case 'empresainvalida':
+            props.onError({ message: 'Digite uma empresa Válida', status: 400});
+            return
+            case 'diaVencido':
+            props.onError({ message: 'Escolha um dia de hoje em diante', status: 400});
+            return
+            case 'duracaoNaoEstipulada':
+            return
           }
-        }))
-      })
-      .catch((err) => {
-        props.onError(err)
-      })
-      .finally(() => {
-        props.onLoading(false)
-      })
+          const listaHorarios = res.data.map((e) => {
+            return {
+              label: e,
+              value: e
+            }
+          })
+          setListaHorarios(listaHorarios)
+          resolve(listaHorarios)
+        })
+        .catch((err) => {
+          props.onError(err)
+        })
+        .finally(() => {
+          props.onLoading(false)
+          
+        })
+    })
   }
+
+
 
   const onSubmit = () => {
     if (!empresa || !valorData || !(estipularHorario ? valorEstipulado : horario)) return
     props.onLoading(true)
-    let momentObj = moment(valorData + horario, 'DD/MM/YYYYHH:mm:s');
+    let newHorario = (Number(horario.substring(0, 2)) + 3)
+    newHorario = (newHorario.length < 2 ? '0' + newHorario : newHorario) + horario.substring(2)
+    let momentObj = moment(valorData + newHorario, 'DD/MM/YYYYHH:mm:s');
     let dateTime = momentObj.format('YYYY-MM-DDTHH:mm:ss:00z');
-    const { cidade, company, id, fullName, marketSegment } = admObjState
+    const { cidade, company, id, fullName, marketSegment, observacao } = admObjState
     let data = {
       cidade,
       empresa: company,
@@ -181,13 +191,37 @@ const ModalAgendamento = (props) => {
       endereco: "",
       imagemPerfilCliente: "",
       imagemPerfilPrestador: "",
-      observacao: ""
+      observacao
     }
 
     if (estipularHorario) {
       data.duracao = valorEstipulado
     }
 
+    if (acao === 'add') {
+      salvarAgendamento(data)
+    } else if (acao === 'edit') {
+      data.id = idAgendamento
+      atualizarAgendamento(data)
+    }
+  }
+
+  function atualizarAgendamento (data) {
+    console.log(data)
+    paginaUsuarioService.putEditarAgendamento(data)
+    .then(() => {
+      fecharModal()
+      props.onSuccess()
+    })
+    .catch((err) => {
+      props.onError(err)
+    })
+    .finally(() => {
+      props.onLoading(false)
+    })
+  }
+
+  function salvarAgendamento (data) {
     paginaUsuarioService.postAgendarCliente(data)
       .then(() => {
         fecharModal()
@@ -199,7 +233,7 @@ const ModalAgendamento = (props) => {
       .finally(() => {
         props.onLoading(false)
       })
-  } 
+  }
 
   function fecharModal () {
     setListaSegmentos([{ id: 0, children: [] }])
@@ -226,6 +260,50 @@ const ModalAgendamento = (props) => {
     }])
     setListaHorarios([])
     onClose()
+  }
+
+  useImperativeHandle(ref, () => ({
+    preencherCampos (data) {
+      const { empresa, dateValue, timeValue, duracao, horarioEstipulado, id } = data
+      setIdAgendamento(id)
+      handlerEmpresa(empresa)
+      setValorData(dateValue)
+      setEstipularHorario(horarioEstipulado)
+      if (horarioEstipulado) {
+        setValorEstipulado(duracao)
+      } else {
+        horariosDisponiveis(dateValue, empresa)
+          .then((listaHorarios) => {
+            let newArray = listaHorarios
+            newArray.push({ label: timeValue, value: timeValue  })
+            setListaHorarios(newArray)
+            setHorario(timeValue)
+          })
+      }
+    }
+  }))
+
+  function handlerEmpresa (empresa) {
+    let admObj = listaAdm.filter((el) => el.company == empresa)[0]
+    setAdmObjState(admObj)
+    const { fds, duracao } = admObj
+    setDatasBloqueadas([])
+
+    if (duracao === '00:00:00') {
+      setEstipularHorario(true)
+    }
+
+    if (fds === 3) {
+      setDatasBloqueadas([0,6]);
+    }
+    else if (fds === 1) {
+      setDatasBloqueadas([6]);
+    }
+    else if (fds === 2) {
+      setDatasBloqueadas([0]);
+    }
+
+    setEmpresa(empresa)
   }
 
   return (
@@ -275,28 +353,8 @@ const ModalAgendamento = (props) => {
           <Autocomplete
             placeholder="Pesquise uma empresa"
             pesquisarTexto={(texto) => pesquisarEmpresa(texto)}
-            onChangeItem={(empresa) => {
-              let admObj = listaAdm.filter((el) => el.company == empresa)[0]
-              setAdmObjState(admObj)
-              const { fds, duracao } = admObj
-              setDatasBloqueadas([])
-
-              if (duracao === '00:00:00') {
-                setEstipularHorario(true)
-              }
-
-              if (fds === 3) {
-                setDatasBloqueadas([0,6]);
-              }
-              else if (fds === 1) {
-                setDatasBloqueadas([6]);
-              }
-              else if (fds === 2) {
-                setDatasBloqueadas([0]);
-              }
-
-              setEmpresa(empresa)
-            }}
+            onChangeItem={(empresa) => handlerEmpresa}
+            value={empresa}
             items={listaEmpresas}
             loading={LoadingEmpresa}
             searchPlaceholderText="Procure por alguma empresa"
@@ -330,6 +388,7 @@ const ModalAgendamento = (props) => {
                 )}
               /> :
               <Select
+                value={horario}
                 onValueChange={(value) => setHorario(value)}
                 disabled={itemsHorario.length === 0}
                 items={itemsHorario}
@@ -357,7 +416,7 @@ const ModalAgendamento = (props) => {
       </View>
     </Modal>
   );
-};
+})
 
 const styles = StyleSheet.create(modalCss);
 

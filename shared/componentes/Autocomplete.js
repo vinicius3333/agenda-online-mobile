@@ -263,6 +263,11 @@ export default class App extends Component {
 
   renderSelectText = () => {
     const { selectedItemObjects } = this.state
+    const { value } = this.props
+
+    if (value) {
+      return <Text style={{  fontSize: 16, width: 200, padding: 8 }}>{value}</Text>
+    }
 
     const selectText = selectedItemObjects.length
       ? `${selectedItemObjects
