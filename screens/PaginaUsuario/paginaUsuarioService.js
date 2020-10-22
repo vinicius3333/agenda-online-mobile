@@ -19,13 +19,13 @@ class CadastroClienteService {
   getListaDiasAgendadosService(idUsuario) {
     return axios.get(`agenda/ListaDiasAgendados/${idUsuario}`);
   }
+  getInfoUsuarioService (userName) {
+    return axios.get(`agenda/ObterUsuario?UserName=${userName}`)
+  }
   getHorariosDisponiveis(empresa, data) {
     return axios.get(
       `agenda/HorariosDisponiveis?empresa=${empresa}&data=${data}`
     );
-  }
-  getInfoUsuarioService (userName) {
-    return axios.get(`agenda/ObterUsuario?UserName=${userName}`)
   }
   getCidadeFiltro (cidade = null, segmento = null) {
     return axios.get(`agenda/BuscarCidades?text=${cidade}&segmento=${segmento}`)

@@ -172,8 +172,6 @@ export default function App({ idUsuario, userName }) {
     })
   }
 
-
-
   function _renderItem({ item, index }, parallaxProps) {
     return (
       <TouchableOpacity onPress={() => {
@@ -320,6 +318,7 @@ export default function App({ idUsuario, userName }) {
           }, 100);
         }}
       />
+      <ModalLoading loading={loading} />
       <ModalConfirmar
         visible={mostrarModalConfirmar}
         onClose={() => setMostrarModalConfirmar(false)}
@@ -329,7 +328,6 @@ export default function App({ idUsuario, userName }) {
           excluirAgendamento()
         }}
       />
-      <ModalLoading loading={loading} />
     </View>
   );
 }

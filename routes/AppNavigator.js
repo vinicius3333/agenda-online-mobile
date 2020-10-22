@@ -37,7 +37,7 @@ export default function App(props) {
   }
 
   function PaginaAdmScreen() {
-    return <PaginaAdm />;
+    return <PaginaAdm idUsuario={idUsuario} userName={userNameState} />;
   }
 
   function PaginaUsuarioScreen() {
