@@ -31,7 +31,7 @@ export default function App({ navigation }) {
 
   const schema = yup.object().shape({
     nomeCompleto: yup.string().required().min(3),
-    celular: yup.string().required().min(13),
+    celular: yup.string().required().matches(/^(?:(?:\+|00)?(55)\s?)?(?:\(?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/, 'Celular inválido'),
     usuario: yup.string().required().min(5),
     senha: yup.string().required().min(5),
     confirmarSenha: yup
@@ -87,7 +87,7 @@ export default function App({ navigation }) {
     <View>
       <ScrollView>
         <View style={styles.container}>
-          <Title style={{ textAlign: "center" }}>Cadastro de cliente</Title>
+          <Title style={{ textAlign: "center", marginBottom: 8 }}>Cadastro de cliente</Title>
           <Controller
             control={control}
             render={({ onChange, onBlur, value }) => (
@@ -112,7 +112,7 @@ export default function App({ navigation }) {
                 onBlur={onBlur}
                 label="Celular"
                 render={(props) => (
-                  <TextInputMask {...props} mask="[00] [00000]-[0000]" />
+                  <TextInputMask {...props} mask="([00]) [00000]-[0000]" />
                 )}
               />
             )}

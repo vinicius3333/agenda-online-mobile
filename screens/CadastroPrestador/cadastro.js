@@ -23,6 +23,7 @@ import * as yup from "yup";
 import Geolocation from "@react-native-community/geolocation";
 import axios from "axios";
 import TextInputMask from "react-native-text-input-mask";
+import Select from '../../shared/componentes/Select'
 
 export default function App({ navigation }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
@@ -40,6 +41,7 @@ export default function App({ navigation }) {
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
   const [error, setError] = React.useState("");
   const [status, setStatus] = React.useState("");
+  const [segmentos] = React.useState(['Saúde','Tecnologia da Informação','Serviços','Comércio','Educação','Assitência Social','Previdência Social','Desenvolvimento urbano / Habitação','Política Agrária','Direitos Humanos','Meio Ambiente','Órgãos de Controle Social','Jurídico', 'Comunicação', 'Engenharias'])
 
   function trocarTipoSenha() {
     setMostrarSenha(!mostrarSenha);
@@ -202,7 +204,7 @@ export default function App({ navigation }) {
     <View>
       <ScrollView>
         <View style={styles.container}>
-          <Title style={{ textAlign: "center" }}>
+          <Title style={{ textAlign: "center", marginBottom: 8 }}>
             Cadastro de prestador de serviço
           </Title>
           <Controller
@@ -250,13 +252,19 @@ export default function App({ navigation }) {
           <Controller
             control={control}
             render={({ onChange, onBlur, value }) => (
-              <TextInput
+              <Select
                 value={value}
-                error={errors.segmento?.message}
-                onChangeText={(value) => onChange(value)}
-                onBlur={onBlur}
-                label="Segmento"
+                onValueChange={onChange}
+                items={segmentos.map((e) => { return { label: e, value: e }})}
+                placeholder="Selecione um horário"
               />
+              // <TextInput
+              //   value={value}
+              //   error={errors.segmento?.message}
+              //   onChangeText={(value) => onChange(value)}
+              //   onBlur={onBlur}
+              //   label="Segmento"
+              // />
             )}
             name="segmento"
             defaultValue=""

@@ -11,7 +11,7 @@ export default class App extends React.Component {
       inputIOS: {
         fontSize: 16,
         paddingVertical: 12,
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         borderWidth: 1,
         borderColor: this.props.disabled ? theme.colors.disabled : theme.colors.borderColor,
         borderRadius: 4,
@@ -20,11 +20,13 @@ export default class App extends React.Component {
       },
       inputAndroid: {
         fontSize: 16,
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         paddingVertical: 8,
+        marginBottom: 8,
         borderWidth: 1,
         borderColor: this.props.disabled ? theme.colors.disabled : theme.colors.borderColor,
         borderRadius: 2,
+        backgroundColor: 'white',
         color: 'black',
         paddingRight: 30, // to ensure the text is never behind the icon
       },
