@@ -285,6 +285,15 @@ export default function App({ idUsuario, userName }) {
           }, 100);
         }}
       />
+      <ModalConfirmar
+        visible={mostrarModalConfirmar}
+        onClose={() => setMostrarModalConfirmar(false)}
+        empresa={objetoExcluir.empresa}
+        excluir={() => {
+          setMostrarModalConfirmar(false)
+          excluirAgendamento()
+        }}
+      />
       <ModalLoading loading={loading} />
     </View>
   );

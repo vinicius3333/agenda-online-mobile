@@ -19,6 +19,9 @@ class PaginaAdmService {
       getInfoUsuarioService (userName) {
         return axios.get(`agenda/ObterUsuario?UserName=${userName}`)
       }
+      delAgendamento (id) {
+        return axios.delete('agenda/' + id)
+      }
 }
 
 export default new PaginaAdmService();
