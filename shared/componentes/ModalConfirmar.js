@@ -12,7 +12,7 @@ import { Button } from 'react-native-paper'
 import theme from "../themes/baseTheme";
 
 const ModalConfirmar = (props) => {
-  const { visible, onClose, empresa, excluir } = props;
+  const { visible, onClose, empresa, excluir, mensagem, titulo } = props;
 
   function fecharModal () {
     onClose()
@@ -35,11 +35,16 @@ const ModalConfirmar = (props) => {
           contentContainerStyle={styles.container}
         >
             <Text style={{ fontSize: 24, color: theme.colors.header, textAlign: 'center', paddingBottom: 8 }}>
-                Apague um Agendamento
+                {titulo || 'Apague um Agendamento'}
             </Text>
-            <Text>
+            {empresa ? 
+              <Text>
                 Tem certeza que deseja excluir o agendamento de<Text style={{color: theme.colors.primary}}> {empresa}</Text>?
-            </Text>
+              </Text>:
+              <Text>
+                {mensagem}
+              </Text>
+            }
             <Button
                 mode="contained"
                 onPress={excluir}

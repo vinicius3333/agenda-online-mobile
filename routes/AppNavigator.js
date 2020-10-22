@@ -49,7 +49,7 @@ export default function App(props) {
   }
 
   function EditarClienteScreen ({navigation}) {
-    return <EditarCliente navigation={navigation} idUsuario={idUsuario} userName={userNameState}/>
+    return <EditarCliente navigation={navigation} idUsuario={idUsuario} userName={userNameState} onExcluirUsuario={() => sair()}/>
   }
 
   const Stack = createStackNavigator();
@@ -124,11 +124,17 @@ export default function App(props) {
     return new Promise((resolve) => {
       usuarioService.getImagemPerfilService(idUsuario)
         .then((res) => {
+          if (['user not found', 'user without image'].includes(res.data)) return
           setUriImagem('data:image/jpeg;base64,' + res.data)
         })
         .catch((err) => console.log(err.response))
         .finally(() => resolve());
     });
+  }
+
+  async function sair () {
+    await AsyncStorage.removeItem("@tokenBeaer");
+    setToken(null);
   }
 
   React.useEffect(() => {
@@ -198,9 +204,8 @@ export default function App(props) {
                     navigationRef.current.navigate("Editar perfil")
                   }
                 }}
-                sair={async () => {
-                  await AsyncStorage.removeItem("@tokenBeaer");
-                  setToken(null);
+                sair={() => {
+                  sair()
                 }}
               />
             ),

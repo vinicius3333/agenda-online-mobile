@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import { Button } from 'react-native-paper'
-import { ModalLoading, ModalErro, ModalSucesso } from "../../shared/componentes/index";
+import { ModalLoading, ModalErro, ModalSucesso, ModalConfirmar } from "../../shared/componentes/index";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
@@ -10,7 +10,7 @@ import TextInput from '../../shared/componentes/TextInput'
 import TextInputMask from "react-native-text-input-mask";
 import editarClienteService from './editarClienteService'
 
-export default function App({ idUsuario, userName, navigation }) {
+export default function App({ idUsuario, userName, navigation, onExcluirUsuario }) {
     const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
     [mostrarSenha, setMostrarSenha] = React.useState(true),
     [iconeConfirmarSenha, setIconeConfirmarSenha] = React.useState(
@@ -24,6 +24,7 @@ export default function App({ idUsuario, userName, navigation }) {
     const [sucesso, setSucesso] = React.useState(false)
     const [subtituloSucesso, setSubtituloSucesso] = React.useState("Usuário editado com sucesso!")
     const [objUsuario, setObjUsuario] = React.useState({})
+    const [mostrarModalConfirmar, setMostrarModalConfirmar] = React.useState(false)
   
   function handlerError(error) {
     if (error.response) {
@@ -68,6 +69,7 @@ export default function App({ idUsuario, userName, navigation }) {
     }
     editarClienteService.putEditarCliente(dataUsuario)
         .then(() => {
+            setSubtituloSucesso("Usuário editado com sucesso!")
             setSucesso(true)
         })
         .catch((err) => {
@@ -78,9 +80,23 @@ export default function App({ idUsuario, userName, navigation }) {
         })
   };
 
+  function excluirUsuario () {
+    setLoading(true)
+    editarClienteService.deleteClienteService(idUsuario)
+      .then((res) => {
+        setSubtituloSucesso("Usuário excluido com sucesso!")
+        setSucesso(true)
+      })
+      .catch((err) => {
+        handlerError(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
   function getInfoUsuario () {
       return new Promise((resolve, reject) => {
-          console.log(userName)
         editarClienteService.getInfoUsuarioService(userName)
             .then((res) => {
                 if (res.data === 'user not found') {
@@ -214,6 +230,15 @@ export default function App({ idUsuario, userName, navigation }) {
           >
             CADASTRAR
           </Button>
+          <Button
+            mode="outlined"
+            theme={theme.colors.success}
+            onPress={() => setMostrarModalConfirmar(true)}
+            contentStyle={styles.button}
+            style={{ marginTop: 8 }}
+          >
+            ENCERRAR CONTA
+          </Button>
         </View>
       </ScrollView>
       <ModalErro
@@ -234,6 +259,17 @@ export default function App({ idUsuario, userName, navigation }) {
         }}
       />
       <ModalLoading loading={loading} />
+      <ModalConfirmar
+        visible={mostrarModalConfirmar}
+        mensagem="Tem certeza que deseja excluir sua conta?"
+        titulo="Excluir perfil"
+        onClose={() => setMostrarModalConfirmar(false)}
+        excluir={() => {
+          setMostrarModalConfirmar(false)
+          excluirUsuario()
+          onExcluirUsuario()
+        }}
+      />
     </View>
   );
 }
@@ -246,6 +282,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
       },
       button: {
-        height: 50,
+        height: 40,
       },
 });

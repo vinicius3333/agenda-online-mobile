@@ -7,6 +7,9 @@ class EditarClienteService {
     putEditarCliente (data) {
         return axios.put('user/UpdateUser', data)
     }
+    deleteClienteService (idUsuario) {
+        return axios.delete(`user/DeletarUsuario/${idUsuario}`)
+    }
 }
 
 export default new EditarClienteService()

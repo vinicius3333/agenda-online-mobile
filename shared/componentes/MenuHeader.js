@@ -9,8 +9,6 @@ const MenuHeader = (props) => {
 
   const closeMenu = () => setVisible(false);
 
-  
-
   return (
     <Menu
       statusBarHeight={38}
@@ -22,7 +20,7 @@ const MenuHeader = (props) => {
           style={{ marginRight: 8, borderRadius: 50 }}
           onPress={() => openMenu()}
         >
-          { props.uri ? 
+          { ![null, '', undefined].includes(props.uri) ? 
           <Avatar.Image
             size={36}
             source={{uri: props.uri}}
