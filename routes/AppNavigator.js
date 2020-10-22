@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, StackActions } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import theme from "../shared/themes/baseTheme";
 import Login from "../screens/Login/login";
@@ -9,6 +9,7 @@ import CadastroCliente from "../screens/CadastroCliente/cadastroCliente";
 import PaginaAdm from "../screens/PaginaAdm/paginaAdm";
 import PaginaUsuario from "../screens/PaginaUsuario/paginaUsuario";
 import Loading from "../screens/loading";
+import EditarCliente from '../screens/EditarCliente/editarCliente'
 
 import { MenuHeader, ModalLoading } from "../shared/componentes/index";
 
@@ -16,6 +17,7 @@ import jwt_decode from "jwt-decode";
 import AsyncStorage from "@react-native-community/async-storage";
 import usuarioService from "../shared/service/usuarioService";
 import ImagePicker from 'react-native-image-picker';
+import { navigationRef } from './RootNavigation';
 
 export default function App(props) {
   function HomeScreen({ navigation }) {
@@ -39,11 +41,15 @@ export default function App(props) {
   }
 
   function PaginaUsuarioScreen() {
-    return <PaginaUsuario idUsuario={idUsuario} mostrando={role === "User"} userName={userNameState} />;
+    return <PaginaUsuario idUsuario={idUsuario} userName={userNameState} />;
   }
 
   function LoadingScreen() {
     return <Loading />;
+  }
+
+  function EditarClienteScreen ({navigation}) {
+    return <EditarCliente navigation={navigation} idUsuario={idUsuario} userName={userNameState}/>
   }
 
   const Stack = createStackNavigator();
@@ -139,7 +145,7 @@ export default function App(props) {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef} >
       {token === null ? (
         <Stack.Navigator
           screenOptions={{
@@ -187,7 +193,11 @@ export default function App(props) {
                 trocarImagem={() => {
                   imagePicker()
                 }}
-                editarPerfil={() => console.log("editarPerfil")}
+                editarPerfil={() => {
+                  if (role === 'User') {
+                    navigationRef.current.navigate("Editar perfil")
+                  }
+                }}
                 sair={async () => {
                   await AsyncStorage.removeItem("@tokenBeaer");
                   setToken(null);
@@ -196,17 +206,24 @@ export default function App(props) {
             ),
           }}
         >
-          {role === "Adm" ? (
+          {role === "Adm" && (
             <Stack.Screen
               name="Pagina do prestador"
               component={PaginaAdmScreen}
             />
-          ) : (
+          )}
+          { role === 'User' && (
             <Stack.Screen
               name="Página do usuário"
               component={PaginaUsuarioScreen}
             />
           )}
+          { role === 'User' && 
+            <Stack.Screen
+              name="Editar perfil"
+              component={EditarClienteScreen}
+            /> 
+          }
         </Stack.Navigator>
       )}
     </NavigationContainer>

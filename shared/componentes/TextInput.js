@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: "crimson",
     fontWeight: "bold",
-    marginBottom: 8,
-    marginTop: 0,
+    marginBottom: 12,
+    marginTop: -4,
     textAlign: "left",
   },
 });
