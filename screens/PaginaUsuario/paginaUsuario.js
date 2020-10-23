@@ -146,7 +146,7 @@ export default function App({ idUsuario, userName }) {
     })
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isCancelled = false;
 
     if (!isCancelled) {

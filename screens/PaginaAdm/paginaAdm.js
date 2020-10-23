@@ -6,6 +6,7 @@ import PaginaAdmService from "./paginaAdmService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
 import { ModalInfoAgendamento } from './ModalInfoAgendamento'
+import { ModalAgendamento } from './ModalAgendamento'
 import moment from 'moment'
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -229,6 +230,10 @@ export default function App({ idUsuario, userName }) {
     );
   }
 
+  function changeLoading (bool) {
+    setLoading(bool)
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -293,6 +298,21 @@ export default function App({ idUsuario, userName }) {
           setMostrarModalConfirmar(false)
           excluirAgendamento()
         }}
+      />
+      <ModalAgendamento
+        visible={mostrarAgendamento}
+        onClose={() => setMostrarAgendamento(false)}
+        onError={(err) => handlerError(err)}
+        onLoading={(bool) => changeLoading(bool)}
+        onSuccess={() => {
+          setSubtituloSucesso(acaoModal === 'add' ? "Agendamento cadastrado com sucesso!" : "Agendamento editado com sucesso!")
+          setSucesso(true)
+        }}
+        idUsuario={idUsuario}
+        listaCliente={listaCliente}
+        infoUsuario={infoUsuario}
+        acao={acaoModal}
+        ref={modalAgendamentoRef}
       />
       <ModalLoading loading={loading} />
     </View>

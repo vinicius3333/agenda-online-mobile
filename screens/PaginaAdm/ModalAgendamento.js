@@ -9,83 +9,44 @@ import {
 } from "react-native";
 import modalCss from '../../shared/componentes/sass/Modal'
 import Autocomplete from '../../shared/componentes/Autocomplete'
-import PaginaUsuarioService from "./paginaUsuarioService";
 import { Button } from 'react-native-paper'
 import theme from '../../shared/themes/baseTheme'
 import TextInput from '../../shared/componentes/TextInput'
 import moment from 'moment'
-import paginaUsuarioService from "./paginaUsuarioService";
+import paginaAdmService from "./paginaAdmService";
 import Select from '../../shared/componentes/Select'
 import TextInputMask from "react-native-text-input-mask";
 
 const today = moment();
 
 const ModalAgendamento = React.forwardRef((props, ref) => {
-  const { visible, onClose, listaAdm, acao } = props;
-  const [loadingCidade, setLoadingCidade] = React.useState(false)
-  const [loadingSegmento, setLoadingSegmento] = React.useState(false)
-  const [LoadingEmpresa, setLoadingEmpresa] = React.useState(false)
-  const [cidade, setCidade] = React.useState(null)
-  const [segmento, setSegmento] = React.useState(null)
-  const [empresa, setEmpresa] = React.useState(null)
-  const [listaCidades, setListaCidades] = React.useState([{
+  const { visible, onClose, listaCliente, acao, idUsuario, infoUsuario } = props;
+  const [loadingUsuarios, setLoadingUsuarios] = React.useState(false)
+  const [listaUsuarios, setListaUsuarios] = React.useState([{
     id: 0,
     children: []
   }])
-  const [listaSegmentos, setListaSegmentos] = React.useState([{
-    id: 0,
-    children: []
-  }])
-  const [listaEmpresas, setListaEmpresas] = React.useState([{
-    id: 0,
-    children: []
-  }])
-  const [mostrarFiltro, setMostrarFiltro] = React.useState(false)
   const [valorData, setValorData] = React.useState("")
   const [datasBloqueadas, setDatasBloqueadas] = React.useState([])
   const [itemsHorario, setListaHorarios] = React.useState([])
-  const [admObjState, setAdmObjState] = React.useState({})
+  const [usuarioObjState, setUsuarioObjState] = React.useState({})
   const [horario, setHorario] = React.useState("")
   const [estipularHorario, setEstipularHorario] = React.useState(false)
   const [valorEstipulado, setValorEstipulado] = React.useState("")
   const [idAgendamento, setIdAgendamento] = React.useState(null)
   const [valueTimer, setValueTimer] = React.useState(new Date())
+  const [nomeUsuario, setNomeUsuario] = React.useState("")
+  const [celularUsuario, setCelular] = React.useState("")
+  const [userName, setUserName] = React.useState("")
 
-  const pesquisarCidade = (texto) => {
-    setCidade(texto)
+  const pesquisarUserName = (texto) => {
+    setUserName(texto)
     if (texto.length === 0) {
-      setListaCidades([{ id: 0, children: [] }])
-      return
+        setListaUsuarios([{ id: 0, children: [] }])
+        return
     }
-    setLoadingCidade(true)
-    PaginaUsuarioService.getCidadeFiltro(texto, segmento)
-      .then((res) => {
-        let listaCidadesRes = []
-        if (res.data === 'NotFound') {
-          listaCidadesRes = []
-        } else {
-          listaCidadesRes = res.data.map((e, index) => {
-            return { id: index + 1, title: e }
-          })
-        }
-        setListaCidades([{ id: 0, children: listaCidadesRes }])
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoadingCidade(false)
-      })
-  }
-
-  const pesquisarSegmento = (texto) => {
-    setSegmento(texto)
-    if (texto.length === 0) {
-      setListaSegmentos([{ id: 0, children: [] }])
-      return
-    }
-    setLoadingSegmento(true)
-    PaginaUsuarioService.getSegmentoFiltro(cidade, texto)
+    setLoadingUsuarios(true)
+    paginaAdmService.getBuscarCliente(texto)
       .then((res) => {
         let listaRes = []
         if (res.data === 'NotFound') {
@@ -95,47 +56,20 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
             return { id: index + 1, title: e }
           })
         }
-        setListaSegmentos([{ id: 0, children: listaRes }])
+        setListaUsuarios([{ id: 0, children: listaRes }])
       })
       .catch((err) => {
         console.log(err)
       })
       .finally(() => {
-        setLoadingSegmento(false)
+        setLoadingUsuarios(false)
       })
   }
 
-  const pesquisarEmpresa = (texto) => {
-    setEmpresa(texto)
-    if (texto.length === 0) {
-      setListaEmpresas([{ id: 0, children: [] }])
-      return
-    }
-    setLoadingEmpresa(true)
-    PaginaUsuarioService.getEmpresaFiltro(cidade, segmento, texto)
-      .then((res) => {
-        let listaRes = []
-        if (res.data === 'NotFound') {
-          listaRes = []
-        } else {
-          listaRes = res.data.map((e, index) => {
-            return { id: index + 1, title: e }
-          })
-        }
-        setListaEmpresas([{ id: 0, children: listaRes }])
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => {
-        setLoadingEmpresa(false)
-      })
-  }
-
-  const horariosDisponiveis = (dateValue, empresa) => {
+  const horariosDisponiveis = (dateValue) => {
     return new Promise((resolve) => {
       props.onLoading(true)
-      paginaUsuarioService.getHorariosDisponiveis(empresa, dateValue)
+      paginaAdmService.getHorariosDisponiveis(infoUsuario.company, dateValue)
         .then((res) => {
           switch (res.data) {
             case 'indisponível':
@@ -169,30 +103,28 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     })
   }
 
-
-
   const onSubmit = () => {
-    if (!empresa || !valorData || !(estipularHorario ? valorEstipulado : horario)) return
+    if (!userName || !valorData || !(estipularHorario ? valorEstipulado : horario)) return
     props.onLoading(true)
     let newHorario = (Number(horario.substring(0, 2)) + 3)
     newHorario = (newHorario.length < 2 ? '0' + newHorario : newHorario) + horario.substring(2)
     let momentObj = moment(valorData + newHorario, 'DD/MM/YYYYHH:mm:s');
     let dateTime = momentObj.format('YYYY-MM-DDTHH:mm:ss:00z');
-    const { cidade, company, id, fullName, marketSegment, observacao } = admObjState
+    const { celular, id, fullName } = usuarioObjState
     let data = {
-      cidade,
-      empresa: company,
+      cidade: infoUsuario.cidade,
+      empresa: infoUsuario.company,
       dataHora: dateTime,
-      admId: id,
+      admId: idUsuario,
       nome: fullName,
-      segmento: marketSegment,
-      usuarioId: props.idUsuario,
-      celularCliente: props.infoUsuario.celular,
+      segmento: infoUsuario.marketSegment,
+      usuarioId: id,
+      celularCliente: celular,
       celularAdm: "",
       endereco: "",
       imagemPerfilCliente: "",
       imagemPerfilPrestador: "",
-      observacao: observacao || ''
+      observacao: infoUsuario.observacao || ''
     }
 
     if (estipularHorario) {
@@ -230,7 +162,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
   }
 
   function atualizarAgendamento (data) {
-    paginaUsuarioService.putEditarAgendamento(data)
+    paginaAdmService.putEditarAgendamento(data)
     .then((res) => {
       if (res.status === 200) {
         handlerErroAgendamento(res.data)
@@ -247,7 +179,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
   }
 
   function salvarAgendamento (data) {
-    paginaUsuarioService.postAgendarCliente(data)
+    paginaAdmService.postAgendarCliente(data)
       .then((res) => {
         if (res.status === 200) {
           handlerErroAgendamento(res.data)
@@ -264,28 +196,14 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
   }
 
   function fecharModal () {
-    setListaSegmentos([{ id: 0, children: [] }])
-    setListaCidades([{ id: 0, children: [] }])
-    setListaEmpresas([{ id: 0, children: [] }])
+    setListaUsuarios([{ id: 0, children: [] }])
     setValorData("")
     setHorario("")
-    setEmpresa("")
-    setSegmento("")
-    setCidade("")
+    setUserName("")
+    setNomeUsuario("")
+    setCelular("")
     setEstipularHorario(false)
     setValorEstipulado('')
-    setListaEmpresas([{
-      id: 0,
-      children: []
-    }])
-    setListaSegmentos([{
-      id: 0,
-      children: []
-    }])
-    setListaCidades([{
-      id: 0,
-      children: []
-    }])
     setListaHorarios([])
     onClose()
   }
@@ -294,7 +212,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     preencherCampos (data) {
       const { empresa, dateValue, timeValue, duracao, horarioEstipulado, id } = data
       setIdAgendamento(id)
-      handlerEmpresa(empresa)
+      handlerUsuario(empresa)
       setValorData(dateValue)
       setEstipularHorario(horarioEstipulado)
       if (horarioEstipulado) {
@@ -312,12 +230,16 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
     }
   }))
 
-  function handlerEmpresa (empresa) {
-    let admObj = listaAdm.filter((el) => el.company == empresa)[0]
-    setAdmObjState(admObj)
-    const { fds, duracao } = admObj
+  function handlerUsuario (userName) {
+    let usuarioObj = listaCliente.filter((el) => el.userName == userName)[0]
+    setUsuarioObjState(usuarioObj)
+    const { fullName, celular } = usuarioObj
     setDatasBloqueadas([])
-    
+    setNomeUsuario(fullName)
+    setCelular(celular)
+
+    const { fds, duracao } = infoUsuario
+
     if (duracao === '00:00:00') {
       setEstipularHorario(true)
     }
@@ -332,7 +254,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
       setDatasBloqueadas([0]);
     }
 
-    setEmpresa(empresa)
+    setUserName(userName)
   }
 
   return (
@@ -355,45 +277,31 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
         <Text style={{ fontSize: 20, color: theme.colors.header, textAlign: 'left', paddingBottom: 8 }}>
           Agende um Horário
         </Text>
-        <Button color={theme.colors.header} style={{ paddingTop: 1 }} mode="outlined" onPress={() => setMostrarFiltro(!mostrarFiltro)}>
-          FILTRO
-        </Button>
-          { mostrarFiltro && (
-            <Autocomplete
-              placeholder="Pesquisa uma cidade"
-              pesquisarTexto={(texto) => pesquisarCidade(texto)}
-              onChangeItem={(cidade) => setCidade(cidade)}
-              items={listaCidades}
-              loading={loadingCidade}
-              searchPlaceholderText="Procure por alguma cidade"
-            />
-            )
-          }
-          { mostrarFiltro && (
-            <Autocomplete
-              placeholder="Pesquise um segmento"
-              pesquisarTexto={(texto) => pesquisarSegmento(texto)}
-              onChangeItem={(segmento) => setSegmento(segmento)}
-              items={listaSegmentos}
-              loading={loadingSegmento}
-              searchPlaceholderText="Procure por algum segmento"
-            />)
-          }
           <Autocomplete
-            placeholder="Pesquise uma empresa"
-            pesquisarTexto={(texto) => pesquisarEmpresa(texto)}
-            onChangeItem={(empresa) => handlerEmpresa(empresa)}
-            value={empresa}
-            items={listaEmpresas}
-            loading={LoadingEmpresa}
-            searchPlaceholderText="Procure por alguma empresa"
+            placeholder="Pesquise um usuário"
+            pesquisarTexto={(texto) => pesquisarUserName(texto)}
+            onChangeItem={(userName) => handlerUsuario(userName)}
+            value={userName}
+            items={listaUsuarios}
+            loading={loadingUsuarios}
+            searchPlaceholderText="Procure o usuário pelo userName"
+          />
+          <TextInput
+            disabled
+            label="Nome"
+            value={nomeUsuario}
+          />
+          <TextInput
+            disabled
+            label="Celular"
+            value={celularUsuario}
           />
           <TextInput
             disabledDates={(date) => {
               const diaSemana = new Date(date).getDay()
               return date.isBefore(today, "day") || datasBloqueadas.includes(diaSemana)
             }}
-            disabled={[null, undefined, ''].includes(empresa)}
+            disabled={[null, undefined, ''].includes(userName)}
             value={valorData}
             onChangeText={(value) => setValorData(value)}
             label="Data"
@@ -402,7 +310,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
             onChangeTimer={(date) => {
               const dateValue = moment(new Date(date)).format('DD/MM/YYYY')
               setValorData(dateValue)
-              horariosDisponiveis(dateValue, empresa)
+              horariosDisponiveis(dateValue, userName)
             }}
           />
             {
