@@ -210,16 +210,18 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     preencherCampos (data) {
-      const { empresa, dateValue, timeValue, duracao, horarioEstipulado, id } = data
+      const { userName, nome, celularCliente, dateValue, timeValue, duracao, horarioEstipulado, id } = data
       setIdAgendamento(id)
-      handlerUsuario(empresa)
+      handlerUsuario(userName)
+      setNomeUsuario(nome)
+      setCelular(celularCliente)
       setValorData(dateValue)
       setEstipularHorario(horarioEstipulado)
       if (horarioEstipulado) {
         setValorEstipulado(duracao)
         setHorario(timeValue)
       } else {
-        horariosDisponiveis(dateValue, empresa)
+        horariosDisponiveis(dateValue, userName)
           .then((listaHorarios) => {
             let newArray = listaHorarios
             newArray.push({ label: timeValue, value: timeValue  })

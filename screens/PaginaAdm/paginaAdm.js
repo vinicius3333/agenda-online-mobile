@@ -213,6 +213,18 @@ export default function App({ idUsuario, userName }) {
             color={theme.colors.success}
             onPress={() => {
               setAcaoModal('edit')
+              const { nome, celularCliente, usuarioId, dataHora, duracao, id } = item
+              const clienteFiltrado = listaCliente.filter((e) => e.id === usuarioId)[0]
+              const horarioEstipulado = infoUsuario.duracao === '00:00:00'
+              const userName = clienteFiltrado.userName
+
+              let momentObj = moment(dataHora, 'YYYY-MM-DDTHH:mm:ss');
+              let dateValue = momentObj.format('DD/MM/YYYY');
+              let timeValue = momentObj.format('HH:mm:ss')
+
+              let data = { userName, nome, celularCliente, dateValue, timeValue, duracao, horarioEstipulado, id }
+              setMostrarAgendamento(true)
+              modalAgendamentoRef.current.preencherCampos(data)
             }}
             />
           <IconButton
