@@ -8,24 +8,19 @@ import {
   TouchableRipple,
 } from "react-native-paper";
 import TextInput from "../../shared/componentes/TextInput";
-import { Formik } from "formik";
 import { ScrollView } from "react-native-gesture-handler";
 import theme from "../../shared/themes/baseTheme";
-import cadastroPrestadorService from "./cadastroPrestadorService";
+import editarPrestadorService from "./editarPrestadorService";
 import {
-  ModalLoading,
-  ModalSucesso,
-  ModalErro,
+  ModalLoading, ModalErro, ModalSucesso, ModalConfirmar
 } from "../../shared/componentes/index";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers";
 import * as yup from "yup";
-import Geolocation from "@react-native-community/geolocation";
-import axios from "axios";
 import TextInputMask from "react-native-text-input-mask";
 import Select from '../../shared/componentes/Select'
 
-export default function App({ navigation }) {
+export default function App({ idUsuario, userName, navigation, onExcluirUsuario }) {
   const [iconeSenha, setIconeSenha] = React.useState("eye-outline"),
     [mostrarSenha, setMostrarSenha] = React.useState(true),
     [iconeConfirmarSenha, setIconeConfirmarSenha] = React.useState(
@@ -42,10 +37,24 @@ export default function App({ navigation }) {
   const [error, setError] = React.useState("");
   const [status, setStatus] = React.useState("");
   const [segmentos] = React.useState(['Saúde','Tecnologia da Informação','Serviços','Comércio','Educação','Assitência Social','Previdência Social','Desenvolvimento urbano / Habitação','Política Agrária','Direitos Humanos','Meio Ambiente','Órgãos de Controle Social','Jurídico', 'Comunicação', 'Engenharias'])
+  const [objUsuario, setObjUsuario] = React.useState({})
+  const [mostrarModalConfirmar, setMostrarModalConfirmar] = React.useState(false)
+  const [subtituloSucesso, setSubtituloSucesso] = React.useState("Usuário editado com sucesso!")
 
   function trocarTipoSenha() {
     setMostrarSenha(!mostrarSenha);
     setIconeSenha(mostrarSenha ? "eye-off-outline" : "eye-outline");
+  }
+
+  function handlerError(error) {
+    if (error.response) {
+      setStatus(error.response.status);
+      setError(error.response.data?.message);
+    } else {
+      setError(error.message);
+      setStatus(500);
+    }
+    setMostrarModalErro(true);
   }
 
   const schema = yup.object().shape({
@@ -109,7 +118,6 @@ export default function App({ navigation }) {
   const onSubmit = (data) => {
     setLoading(true);
     const {
-      celular,
       aberturaEstabelecimento,
       cidade,
       duracaoServico,
@@ -123,6 +131,7 @@ export default function App({ navigation }) {
       segmento,
       senha,
       usuario,
+      celular
     } = data;
     let fds = 0;
     if (sabado && domingo) {
@@ -150,10 +159,11 @@ export default function App({ navigation }) {
       Fds: fds,
       Password: senha,
       FullName: nomeCompleto,
+      id: idUsuario
     };
 
-    cadastroPrestadorService
-      .postRegistroPrestador(dataCliente)
+    editarPrestadorService
+      .putEditarAdm(dataCliente)
       .then(() => {
         setSucesso(true);
       })
@@ -172,34 +182,74 @@ export default function App({ navigation }) {
       });
   };
 
-  React.useEffect(() => {
-    Geolocation.getCurrentPosition((info) => {
-      if (pegouLocalizacao) return;
-      setLoading(true);
-      const lat = info.coords.latitude;
-      const long = info.coords.longitude;
-      const url = `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${long}&key=579f90a38d994545ab5bcf5d2adb3966`;
-      axios
-        .get(url)
-        .then((res) => {
-          setpegouLocalizacao(true);
-          if (res.data.results.length === 0) return;
-          const result = res.data.results[0];
-          if (result.components.city) {
-            setValue("cidade", result.components.city);
-          } else if (result.components.town) {
-            setValue("cidade", result.components.town);
-          }
-          setValue("endereco", result.formatted);
-        })
-        .catch(() => {
-          setError("Localização não encontrada.");
-          setStatus(500);
-        })
-        .finally(() => {
+  function excluirUsuario () {
+    setLoading(true)
+    editarClienteService.deleteClienteService(idUsuario)
+      .then(() => {
+        onExcluirUsuario()
+      })
+      .catch((err) => {
+        handlerError(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
+  function getInfoUsuario () {
+    return new Promise((resolve, reject) => {
+      editarPrestadorService.getInfoUsuarioService(userName)
+          .then((res) => {
+              if (res.data === 'user not found') {
+                  handlerError({ message: 'Usuário não encontrado!', status: 400})
+                  return
+              }
+              setObjUsuario(res.data)
+              const { fds, duracao, celular, fullName, userName, password, email, company, marketSegment, cidade, abertura, fechamento, almocoIni, almocoFim, endereco } = res.data
+              setValue('nomeCompleto', fullName)
+              setValue('email', email)
+              setValue('empresa', company)
+              setValue('segmento', marketSegment)
+              setValue('cidade', cidade)
+              setValue('aberturaEstabelecimento', abertura.substring(0, 5))
+              setValue('fechamentoEstabelecimento', fechamento.substring(0, 5))
+              setValue('inicioAlmoco', almocoIni.substring(0, 5))
+              setValue('fimAlmoco', almocoFim.substring(0, 5))
+              setValue('endereco', endereco)
+              setValue('usuario', userName)
+              setValue('senha', password)
+              setValue('confirmarSenha', password)
+              setValue('duracaoServico', duracao.substring(0, 5))
+              setValue('celular', celular)
+
+              if (fds === 3) {
+                setSabado(true)
+                setDomingo(true)
+              } else if (fds === 2) {
+                fds = 2;
+                setDomingo(true)
+              } else if (fds === 1) {
+                setSabado(true)
+              }
+              resolve()
+          })
+          .catch((err) => {
+              handlerError(err)
+              reject()
+          })
+    })
+}
+
+async function onInit() {
+  setLoading(true);
+  getInfoUsuario()
+      .finally(() => {
           setLoading(false);
-        });
-    });
+      })
+}
+
+  React.useEffect(() => {
+    onInit()
   }, []);
 
   return (
@@ -313,6 +363,7 @@ export default function App({ navigation }) {
                 label="Abertura do estabelecimento"
                 maxLength={5}
                 mostrarCalendario={true}
+                mode="time"
                 onChangeTimer={(date) => {
                   const dataValue = new Date(date)
                     .toTimeString()
@@ -504,7 +555,16 @@ export default function App({ navigation }) {
             style={{ marginTop: 4 }}
             labelStyle={{ color: "white" }}
           >
-            CADASTRAR
+            EDITAR
+          </Button>
+          <Button
+            mode="outlined"
+            theme={theme.colors.success}
+            onPress={() => setMostrarModalConfirmar(true)}
+            contentStyle={styles.button}
+            style={{ marginTop: 8 }}
+          >
+            ENCERRAR CONTA
           </Button>
         </View>
       </ScrollView>
@@ -512,11 +572,11 @@ export default function App({ navigation }) {
       <ModalSucesso
         visible={sucesso}
         titulo="Sucesso!"
-        subtitulo="Cadastro do prestador de serviço criado!"
+        subtitulo={subtituloSucesso}
         onClose={() => {
           setSucesso(false);
           setTimeout(() => {
-            navigation.navigate("Login");
+            navigation.navigate("Pagina do prestador");
           }, 100);
         }}
       />
@@ -525,6 +585,16 @@ export default function App({ navigation }) {
         error={error}
         status={status}
         onClose={() => setMostrarModalErro(false)}
+      />
+      <ModalConfirmar
+        visible={mostrarModalConfirmar}
+        mensagem="Tem certeza que deseja excluir sua conta?"
+        titulo="Excluir perfil"
+        onClose={() => setMostrarModalConfirmar(false)}
+        excluir={() => {
+          setMostrarModalConfirmar(false)
+          excluirUsuario()
+        }}
       />
     </View>
   );

@@ -49,7 +49,7 @@ const TextInputComponent = (props) => {
         theme={{colors: { primary: "#007bff", background: "white" }}}
         onFocus={() => {
           if (!props.mostrarCalendario) return;
-          if (props.mostrarCalendario && props.mode === 'time') {
+          if (props.mostrarCalendario && (props.mode === 'time' || props.mode === null)) {
             setShowTimer(true);
           } else if (props.mostrarCalendario && props.mode === 'date') {
             setShowDate(true)

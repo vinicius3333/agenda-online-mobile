@@ -10,6 +10,7 @@ import PaginaAdm from "../screens/PaginaAdm/paginaAdm";
 import PaginaUsuario from "../screens/PaginaUsuario/paginaUsuario";
 import Loading from "../screens/loading";
 import EditarCliente from '../screens/EditarCliente/editarCliente'
+import EditarPrestador from '../screens/EditarPrestador/editarPrestador'
 
 import { MenuHeader, ModalLoading } from "../shared/componentes/index";
 
@@ -50,6 +51,10 @@ export default function App(props) {
 
   function EditarClienteScreen ({navigation}) {
     return <EditarCliente navigation={navigation} idUsuario={idUsuario} userName={userNameState} onExcluirUsuario={() => sair()}/>
+  }
+
+  function EditarPrestadorScreen ({ navigation }) {
+    return <EditarPrestador navigation={navigation} idUsuario={idUsuario} userName={userNameState} onExcluirUsuario={() => sair()} />
   }
 
   const Stack = createStackNavigator();
@@ -202,6 +207,8 @@ export default function App(props) {
                 editarPerfil={() => {
                   if (role === 'User') {
                     navigationRef.current.navigate("Editar perfil")
+                  } else {
+                    navigationRef.current.navigate("Editar prestador")
                   }
                 }}
                 sair={() => {
@@ -215,6 +222,12 @@ export default function App(props) {
             <Stack.Screen
               name="Pagina do prestador"
               component={PaginaAdmScreen}
+            />
+          )}
+          {role === "Adm" && (
+            <Stack.Screen
+              name="Editar prestador"
+              component={EditarPrestadorScreen}
             />
           )}
           { role === 'User' && (

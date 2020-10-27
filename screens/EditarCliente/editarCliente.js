@@ -83,9 +83,8 @@ export default function App({ idUsuario, userName, navigation, onExcluirUsuario 
   function excluirUsuario () {
     setLoading(true)
     editarClienteService.deleteClienteService(idUsuario)
-      .then((res) => {
-        setSubtituloSucesso("Usuário excluido com sucesso!")
-        setSucesso(true)
+      .then(() => {
+        onExcluirUsuario()
       })
       .catch((err) => {
         handlerError(err)
@@ -228,7 +227,7 @@ export default function App({ idUsuario, userName, navigation, onExcluirUsuario 
             style={{ marginTop: 4 }}
             labelStyle={{ color: "white" }}
           >
-            CADASTRAR
+            EDITAR
           </Button>
           <Button
             mode="outlined"
@@ -267,7 +266,6 @@ export default function App({ idUsuario, userName, navigation, onExcluirUsuario 
         excluir={() => {
           setMostrarModalConfirmar(false)
           excluirUsuario()
-          onExcluirUsuario()
         }}
       />
     </View>
