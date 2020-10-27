@@ -224,7 +224,7 @@ const ModalAgendamento = React.forwardRef((props, ref) => {
       props.onError({ message: 'Escolha um Horário de Serviço ou que não seja do almoço', status: 400});
       return
       default:
-      props.onError({ message: `Esta Data/Hora foi excluida da Agenda pelo seguinte motivo: ${er.text}`, status: 400});
+      props.onError({ message: `Erro: ${erro}`, status: 400});
       return
     }
   }

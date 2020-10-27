@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { ModalLoading, ModalErro, ModalSucesso, ModalConfirmar } from "../../shared/componentes/index";
-import { Colors, IconButton } from "react-native-paper";
+import { Colors, IconButton, Menu } from "react-native-paper";
 import PaginaAdmService from "./paginaAdmService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
 import { ModalInfoAgendamento } from './ModalInfoAgendamento'
 import { ModalAgendamento } from './ModalAgendamento'
 import moment from 'moment'
+import { ModalMarcaEvento } from './ModalMarcaEvento'
+import { ModalDisponibilizarEvento } from './ModalDisponibilizarEvento'
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -33,7 +35,10 @@ export default function App({ idUsuario, userName }) {
   })
   const [subtituloSucesso, setSubtituloSucesso] = React.useState("Agendamento cadastrado com sucesso!")
   const modalAgendamentoRef = React.useRef(null)
-
+  const [mostrarMenuIcone, setMostrarMenuIcone] = React.useState(false)
+  const [mostrarModalEvento, setMostrarModalEvento] = React.useState(false)
+  const [listaHorariosExcluidos, setListaHorariosExcluidos] = React.useState([])
+  const [mostrarModalDisponivel, setMostrarModalDisponivel] = React.useState(false)
   const [carouselComponente, setCarouselComponente] = React.useState(null);
 
   function handlerError(error) {
@@ -169,6 +174,29 @@ export default function App({ idUsuario, userName }) {
     })
   }
 
+  function adiarEvento () {
+    setMostrarMenuIcone(false)
+    setLoading(true)
+    PaginaAdmService.getDatasExcluidas(idUsuario)
+      .then((res) => {
+        setListaHorariosExcluidos(res.data.map((e) => {
+          return { label: e, value: e }
+        }))
+        setMostrarModalDisponivel(true)
+      })
+      .catch((err) => {
+        handlerError(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
+  function marcarEvento () {
+    setMostrarMenuIcone(false)
+    setMostrarModalEvento(true)
+  }
+
   function _renderItem({ item, index }, parallaxProps) {
     return (
       <TouchableOpacity onPress={() => {
@@ -249,17 +277,47 @@ export default function App({ idUsuario, userName }) {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <IconButton
-          style={{ alignSelf: "flex-end" }}
-          icon="calendar"
-          size={40}
-          onPress={() => {
-            setAcaoModal('add')
-            setSubtituloSucesso("Agendamento cadastrado com sucesso!")
-            setMostrarAgendamento(true)
-          }}
-          color={theme.colors.header}
-        />
+        <View style={styles.iconesAcao}>
+          <Menu
+            statusBarHeight={38}
+            visible={mostrarMenuIcone}
+            onDismiss={() => setMostrarMenuIcone(false)}
+            anchor={
+            <IconButton
+              icon="calendar-remove"
+              size={40}
+              onPress={() => {
+                setMostrarMenuIcone(true)
+              }}
+              color="black"
+            />
+            }
+          >
+            <Menu.Item
+              onPress={() => {
+                marcarEvento()
+              }}
+              title="Marcar evento"
+            />
+            <Menu.Item
+              onPress={() => {
+                adiarEvento()
+              }}
+              title="Adiar evento"
+            />
+          </Menu>
+          <IconButton
+            style={{ marginLeft: 'auto' }}
+            icon="calendar"
+            size={40}
+            onPress={() => {
+              setAcaoModal('add')
+              setSubtituloSucesso("Agendamento cadastrado com sucesso!")
+              setMostrarAgendamento(true)
+            }}
+            color={theme.colors.header}
+          />
+        </View>
         {listaDias.map((prop, key) => {
           return (
             <View key={key} style={{ paddingBottom: 8 }}>
@@ -326,6 +384,30 @@ export default function App({ idUsuario, userName }) {
         acao={acaoModal}
         ref={modalAgendamentoRef}
       />
+      <ModalDisponibilizarEvento
+        visible={mostrarModalDisponivel}
+        onClose={() => setMostrarModalDisponivel(false)}
+        onError={(err) => handlerError(err)}
+        onLoading={(bool) => changeLoading(bool)}
+        onSuccess={() => {
+          setSubtituloSucesso("Esse horário foi disponivel novamente!")
+          setSucesso(true)
+        }}
+        listaHorariosExcluidos={listaHorariosExcluidos}
+        idUsuario={idUsuario}
+      />
+      <ModalMarcaEvento
+        visible={mostrarModalEvento}
+        onClose={() => setMostrarModalEvento(false)}
+        onError={(err) => handlerError(err)}
+        onLoading={(bool) => changeLoading(bool)}
+        onSuccess={() => {
+          setSubtituloSucesso("Esse horário foi excluido da sua agenda!")
+          setSucesso(true)
+        }}
+        infoUsuario={infoUsuario}
+        idUsuario={idUsuario}
+      />
       <ModalLoading loading={loading} />
     </View>
   );
@@ -363,4 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
   },
+  iconesAcao: {
+    flexDirection: "row",
+  }
 });

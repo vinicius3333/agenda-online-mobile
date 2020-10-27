@@ -39,6 +39,15 @@ class PaginaAdmService {
   delAgendamento (id) {
     return axios.delete('agenda/' + id)
   }
+  postDeclararMotivo (data) {
+    return axios.post("evento/DeclararMotivo", data)
+  }
+  getDatasExcluidas (idUsuario) {
+    return axios.get(`evento/ListaDeDatasExcluidas/${idUsuario}`)
+  }
+  postDisponibilizarHorario (data) {
+    return axios.post("evento/DisponibilizarEvento", data)
+  }
 }
 
 export default new PaginaAdmService();
