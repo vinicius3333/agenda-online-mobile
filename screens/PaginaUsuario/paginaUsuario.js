@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { ModalLoading, ModalErro, ModalSucesso, ModalConfirmar } from "../../shared/componentes/index";
-import { Colors, IconButton } from "react-native-paper";
+import { Button, IconButton } from "react-native-paper";
 import PaginaUsuarioService from "./paginaUsuarioService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
@@ -11,7 +11,7 @@ import moment from 'moment'
 
 const { width: screenWidth } = Dimensions.get("window");
 
-export default function App({ idUsuario, userName }) {
+export default function App({ idUsuario, userName, navigation }) {
   const [mostrarAgendamento, setMostrarAgendamento] = React.useState(false)
   const [loading, setLoading] = React.useState(false);
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
@@ -250,6 +250,12 @@ export default function App({ idUsuario, userName }) {
   return (
     <View style={styles.container}>
       <ScrollView>
+        <Button
+          mode="text"
+          onPress={() => navigation.navigate("Prestadores de serviço")}
+        >
+          Lista de Empresas
+        </Button>
         <IconButton
           style={{ alignSelf: "flex-end" }}
           icon="calendar"

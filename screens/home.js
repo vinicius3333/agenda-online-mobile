@@ -1,105 +1,60 @@
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { DataTable, Button } from "react-native-paper";
-import theme from "../shared/themes/baseTheme";
+import React, { Component } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { Table, TableWrapper, Row } from 'react-native-table-component';
 
-export default function App({ navigation }) {
-  React.useLayoutEffect(() => {
-    navigation.setOptions({});
-  });
-  return (
-    <View style={styles.container}>
-      <View style={styles.empresas}>
-        <Text style={styles.tituloEmpresa}>Empresas</Text>
+export default class ExampleThree extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tableHead: ['Head', 'Head2', 'Head3', 'Head4', 'Head5', 'Head6', 'Head7', 'Head8', 'Head9'],
+      widthArr: [40, 60, 80, 100, 120, 140, 160, 180, 200]
+    }
+  }
+
+  render() {
+    const state = this.state;
+    const tableData = [];
+    for (let i = 0; i < 30; i += 1) {
+      const rowData = [];
+      for (let j = 0; j < 9; j += 1) {
+        rowData.push(`${i}${j}`);
+      }
+      tableData.push(rowData);
+    }
+
+    return (
+      <View style={styles.container}>
+        <ScrollView horizontal={true}>
+          <View>
+            <Table borderStyle={{borderWidth: 1, borderColor: '#C1C0B9'}}>
+              <Row data={state.tableHead} widthArr={state.widthArr} style={styles.header} textStyle={styles.text}/>
+            </Table>
+            <ScrollView style={styles.dataWrapper}>
+              <Table borderStyle={{borderWidth: 1, borderColor: '#C1C0B9'}}>
+                {
+                  tableData.map((rowData, index) => (
+                    <Row
+                      key={index}
+                      data={rowData}
+                      widthArr={state.widthArr}
+                      style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}
+                      textStyle={styles.text}
+                    />
+                  ))
+                }
+              </Table>
+            </ScrollView>
+          </View>
+        </ScrollView>
       </View>
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title>Empresa</DataTable.Title>
-          <DataTable.Title>Segmento</DataTable.Title>
-          <DataTable.Title>Cidade</DataTable.Title>
-          <DataTable.Title>Abertura</DataTable.Title>
-          <DataTable.Title>Fechamento</DataTable.Title>
-          <DataTable.Title>Duração</DataTable.Title>
-          <DataTable.Title>Dia de folga</DataTable.Title>
-        </DataTable.Header>
-
-        <DataTable.Row>
-          <DataTable.Cell>Agenda online</DataTable.Cell>
-          <DataTable.Cell>Desenvolvimento</DataTable.Cell>
-          <DataTable.Cell>São vicente</DataTable.Cell>
-          <DataTable.Cell>08:00:00</DataTable.Cell>
-          <DataTable.Cell>22:00:00</DataTable.Cell>
-          <DataTable.Cell>01:00:00</DataTable.Cell>
-          <DataTable.Cell>Sábado</DataTable.Cell>
-        </DataTable.Row>
-        <DataTable.Row>
-          <DataTable.Cell>Agenda online</DataTable.Cell>
-          <DataTable.Cell>Desenvolvimento</DataTable.Cell>
-          <DataTable.Cell>São vicente</DataTable.Cell>
-          <DataTable.Cell>08:00:00</DataTable.Cell>
-          <DataTable.Cell>22:00:00</DataTable.Cell>
-          <DataTable.Cell>01:00:00</DataTable.Cell>
-          <DataTable.Cell>Sábado</DataTable.Cell>
-        </DataTable.Row>
-        <DataTable.Row>
-          <DataTable.Cell>Agenda online</DataTable.Cell>
-          <DataTable.Cell>Desenvolvimento</DataTable.Cell>
-          <DataTable.Cell>São vicente</DataTable.Cell>
-          <DataTable.Cell>08:00:00</DataTable.Cell>
-          <DataTable.Cell>22:00:00</DataTable.Cell>
-          <DataTable.Cell>01:00:00</DataTable.Cell>
-          <DataTable.Cell>Sábado</DataTable.Cell>
-        </DataTable.Row>
-        <DataTable.Row>
-          <DataTable.Cell>Agenda online</DataTable.Cell>
-          <DataTable.Cell>Desenvolvimento</DataTable.Cell>
-          <DataTable.Cell>São vicente</DataTable.Cell>
-          <DataTable.Cell>08:00:00</DataTable.Cell>
-          <DataTable.Cell>22:00:00</DataTable.Cell>
-          <DataTable.Cell>01:00:00</DataTable.Cell>
-          <DataTable.Cell>Sábado</DataTable.Cell>
-        </DataTable.Row>
-        <DataTable.Row>
-          <DataTable.Cell>Agenda online</DataTable.Cell>
-          <DataTable.Cell>Desenvolvimento</DataTable.Cell>
-          <DataTable.Cell>São vicente</DataTable.Cell>
-          <DataTable.Cell>08:00:00</DataTable.Cell>
-          <DataTable.Cell>22:00:00</DataTable.Cell>
-          <DataTable.Cell>01:00:00</DataTable.Cell>
-          <DataTable.Cell>Sábado</DataTable.Cell>
-        </DataTable.Row>
-
-        <DataTable.Pagination
-          page={1}
-          numberOfPages={3}
-          onPageChange={(page) => {
-            console.log(page);
-          }}
-          label="Mostrando 5 de 10"
-        />
-      </DataTable>
-    </View>
-  );
+    )
+  }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  empresas: {
-    height: 50,
-    backgroundColor: theme.colors.primary,
-    justifyContent: "center",
-  },
-  tituloEmpresa: {
-    fontSize: theme.text.size.h2,
-    color: theme.text.colors.secondary,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  button: {
-    height: 50,
-  },
+  container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
+  header: { height: 50, backgroundColor: '#537791' },
+  text: { textAlign: 'center', fontWeight: '100' },
+  dataWrapper: { marginTop: -1 },
+  row: { height: 40, backgroundColor: '#E7E6E1' }
 });

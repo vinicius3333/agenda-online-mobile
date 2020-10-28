@@ -11,6 +11,7 @@ import PaginaUsuario from "../screens/PaginaUsuario/paginaUsuario";
 import Loading from "../screens/loading";
 import EditarCliente from '../screens/EditarCliente/editarCliente'
 import EditarPrestador from '../screens/EditarPrestador/editarPrestador'
+import TabelaPrestadores from '../screens/TabelaPrestadores/tabelaPrestadores'
 
 import { MenuHeader, ModalLoading } from "../shared/componentes/index";
 
@@ -21,10 +22,6 @@ import ImagePicker from 'react-native-image-picker';
 import { navigationRef } from './RootNavigation';
 
 export default function App(props) {
-  function HomeScreen({ navigation }) {
-    return <Home navigation={navigation} />;
-  }
-
   function LoginScreen({ navigation }) {
     return <Login navigation={navigation} logar={() => getToken()} />;
   }
@@ -37,12 +34,12 @@ export default function App(props) {
     return <CadastroCliente navigation={navigation} />;
   }
 
-  function PaginaAdmScreen() {
-    return <PaginaAdm idUsuario={idUsuario} userName={userNameState} />;
+  function PaginaAdmScreen({ navigation }) {
+    return <PaginaAdm idUsuario={idUsuario} userName={userNameState} navigation={navigation}/>;
   }
 
-  function PaginaUsuarioScreen() {
-    return <PaginaUsuario idUsuario={idUsuario} userName={userNameState} />;
+  function PaginaUsuarioScreen({ navigation }) {
+    return <PaginaUsuario idUsuario={idUsuario} userName={userNameState} navigation={navigation}/>;
   }
 
   function LoadingScreen() {
@@ -55,6 +52,10 @@ export default function App(props) {
 
   function EditarPrestadorScreen ({ navigation }) {
     return <EditarPrestador navigation={navigation} idUsuario={idUsuario} userName={userNameState} onExcluirUsuario={() => sair()} />
+  }
+
+  function tabelaPrestadoresScreen () {
+    return <TabelaPrestadores/>
   }
 
   const Stack = createStackNavigator();
@@ -171,7 +172,7 @@ export default function App(props) {
           }}
         >
           <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Prestadores de serviço" component={HomeScreen} />
+          <Stack.Screen name="Prestadores de serviço" component={tabelaPrestadoresScreen} />
           <Stack.Screen
             name="Cadastro Prestador"
             options={() => ({
@@ -242,6 +243,7 @@ export default function App(props) {
               component={EditarClienteScreen}
             /> 
           }
+          <Stack.Screen name="Prestadores de serviço" component={tabelaPrestadoresScreen} />
         </Stack.Navigator>
       )}
     </NavigationContainer>

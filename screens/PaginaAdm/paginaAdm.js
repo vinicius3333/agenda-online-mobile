@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import { ModalLoading, ModalErro, ModalSucesso, ModalConfirmar } from "../../shared/componentes/index";
-import { Colors, IconButton, Menu } from "react-native-paper";
+import { Colors, IconButton, Menu, Button } from "react-native-paper";
 import PaginaAdmService from "./paginaAdmService";
 import Carousel, { ParallaxImage } from "react-native-snap-carousel";
 import theme from "../../shared/themes/baseTheme";
@@ -13,7 +13,7 @@ import { ModalDisponibilizarEvento } from './ModalDisponibilizarEvento'
 
 const { width: screenWidth } = Dimensions.get("window");
 
-export default function App({ idUsuario, userName }) {
+export default function App({ idUsuario, userName, navigation }) {
   const [mostrarAgendamento, setMostrarAgendamento] = React.useState(false)
   const [loading, setLoading] = React.useState(false);
   const [mostrarModalErro, setMostrarModalErro] = React.useState(false);
@@ -277,6 +277,12 @@ export default function App({ idUsuario, userName }) {
   return (
     <View style={styles.container}>
       <ScrollView>
+        <Button
+          mode="text"
+          onPress={() => navigation.navigate("Prestadores de serviço")}
+        >
+          Lista de Empresas
+        </Button>
         <View style={styles.iconesAcao}>
           <Menu
             statusBarHeight={38}
