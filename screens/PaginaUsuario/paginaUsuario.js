@@ -34,6 +34,7 @@ export default function App({ idUsuario, userName, navigation }) {
   })
   const [subtituloSucesso, setSubtituloSucesso] = React.useState("Agendamento cadastrado com sucesso!")
   const modalAgendamentoRef = React.useRef(null)
+  const [completo, setCompleto] = React.useState(false)
 
   const [carouselComponente, setCarouselComponente] = React.useState(null);
   
@@ -138,6 +139,7 @@ export default function App({ idUsuario, userName, navigation }) {
                 getListaDiasAgendados(isCancelled).finally(() => {
                   if (!isCancelled) {
                     setLoading(false)
+                    setCompleto(true)
                   }
                 });
               });
@@ -147,6 +149,7 @@ export default function App({ idUsuario, userName, navigation }) {
   }
 
   useEffect(() => {
+    if (completo) return
     let isCancelled = false;
 
     if (!isCancelled) {

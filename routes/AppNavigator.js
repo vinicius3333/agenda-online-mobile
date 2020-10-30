@@ -140,7 +140,7 @@ export default function App(props) {
 
   async function sair () {
     await AsyncStorage.removeItem("@tokenBeaer");
-    setToken(null);
+    setToken(null)
   }
 
   React.useEffect(() => {

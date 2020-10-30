@@ -40,6 +40,7 @@ export default function App({ idUsuario, userName, navigation }) {
   const [listaHorariosExcluidos, setListaHorariosExcluidos] = React.useState([])
   const [mostrarModalDisponivel, setMostrarModalDisponivel] = React.useState(false)
   const [carouselComponente, setCarouselComponente] = React.useState(null);
+  const [completo, setCompleto] = React.useState(false)
 
   function handlerError(error) {
     if (error.response) {
@@ -140,6 +141,7 @@ export default function App({ idUsuario, userName, navigation }) {
                 getListaDiasAgendados(isCancelled).finally(() => {
                   if (!isCancelled) {
                     setLoading(false)
+                    setCompleto(true)
                   }
                 });
               });
@@ -149,6 +151,7 @@ export default function App({ idUsuario, userName, navigation }) {
   }
 
   React.useEffect(() => {
+    if (completo) return
     let isCancelled = false;
 
     if (!isCancelled) {
