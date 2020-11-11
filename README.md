@@ -13,22 +13,22 @@ npm install
 npm run android
 ```
 
-### IOS
+### IOS:
 ```
 npm run ios
 ```
 
-### Web
+### Web:
 ```
 npm run web
 ```
 
-### Apenas o servidor do metro
+### Apenas o servidor do metro:
 ```
 npm start
 ```
 
-### Testes
+### Testes:
 ```
 npm run test
 ```
