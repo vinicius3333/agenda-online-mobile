@@ -3,6 +3,11 @@
 ## Ambiente
 Primeiro, você deve instalar todos os requisitos do **React Native**, para saber mais, clique [aqui](https://reactnative.dev/docs/getting-started).
 
+### Para instalar as depêndencias do projeto:
+```
+npm install
+```
+
 ### Para rodar no Android:
 ```
 npm run android
