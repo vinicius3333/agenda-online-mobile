@@ -159,8 +159,13 @@ export default function App({ navigation }) {
       })
       .catch((error) => {
         if (error.response) {
-          setStatus(error.response.status);
-          setError(error.response.data);
+          if (error.response.data[0].code === "DuplicateUserName") {
+            setStatus(error.response.status);
+            setError("Cadastro duplicado");
+          } else {
+            setStatus(error.response.status);
+            setError(error.response.data.code);
+          }
         } else {
           setError(error.message);
           setStatus(500);

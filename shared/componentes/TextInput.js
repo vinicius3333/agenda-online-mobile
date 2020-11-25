@@ -8,6 +8,7 @@ import moment from 'moment'
 const TextInputComponent = (props) => {
   const [showTimer, setShowTimer] = React.useState(false);
   const [showDate, setShowDate] = React.useState(false)
+
   return (
     <View>
       <CalendarPicker
@@ -49,7 +50,7 @@ const TextInputComponent = (props) => {
         theme={{colors: { primary: "#007bff", background: "white" }}}
         onFocus={() => {
           if (!props.mostrarCalendario) return;
-          if (props.mostrarCalendario && (props.mode === 'time' || props.mode === null)) {
+          if (props.mostrarCalendario && (props.mode === 'time' || props.mode === null || props.mode === undefined)) {
             setShowTimer(true);
           } else if (props.mostrarCalendario && props.mode === 'date') {
             setShowDate(true)
