@@ -153,10 +153,10 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file('agenda-online.keystore')
-            storePassword '321654987'
-            keyAlias 'agenda-online'
-            keyPassword '321654987'
+            storeFile file('agenda.keystore')
+            storePassword '123456789'
+            keyAlias 'agenda_online'
+            keyPassword '123456789'
         }
     }
     buildTypes {

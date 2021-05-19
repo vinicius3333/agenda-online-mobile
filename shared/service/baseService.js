@@ -9,6 +9,7 @@ class BaseService {
   startRequestAxios() {
     axios.interceptors.request.use(
       (request) => {
+        console.log(request)
         return request;
       },
       (error) => {

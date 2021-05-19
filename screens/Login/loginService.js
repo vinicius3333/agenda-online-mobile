@@ -2,7 +2,7 @@ import axios from "axios";
 
 class LoginService {
   postLogin(data) {
-    return axios.post("/user/login", data);
+    return axios.post("/user/v1/login", data);
   }
 }
 
